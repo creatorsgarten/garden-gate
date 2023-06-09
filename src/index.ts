@@ -25,8 +25,10 @@ app
         setTimeout(async () => {
           console.log('deleting', cardNo)
 
-          await deleteTimedAccessCard(cardNo)
+          // await deleteTimedAccessCard(cardNo)
         }, 1000 * 60 * CARD_VALIDITY_IN_MINUTES)
+
+        return {cardNo}
       })
   )
   .listen(3000)
