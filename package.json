@@ -12,6 +12,7 @@
   "dependencies": {
     "@elysiajs/cron": "^0.5.3",
     "elysia": "^0.5.17",
+    "http-auth-utils": "^4.0.0",
     "jwt-promisify": "^1.1.7",
     "node-fetch": "^3.3.1"
   },
