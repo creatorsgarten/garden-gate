@@ -1,0 +1,12 @@
+{
+  "name": "garden-gate",
+  "version": "0.0.1",
+  "description": "Door authorizer built with Elysia, running on a Raspberry Pi behind a trusted network.",
+  "main": "src/main.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
