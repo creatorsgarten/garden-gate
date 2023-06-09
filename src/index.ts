@@ -20,13 +20,14 @@ const app = new Elysia()
                 console.log('creating', cardNo)
 
                 // Delete the timed access card after X minutes.
+                let timeoutIn = 1000 * 60 * CARD_VALIDITY_IN_MINUTES
                 setTimeout(async () => {
                     console.log('deleting', cardNo)
 
                     // await deleteTimedAccessCard(cardNo)
-                }, 1000 * 60 * CARD_VALIDITY_IN_MINUTES)
+                }, timeoutIn)
 
-                return { cardNo }
+                return { cardNo, expireAt: new Date(new Date().valueOf() + timeoutIn)  }
             })
     )
     .listen(3000)
