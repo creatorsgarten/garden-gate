@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@elysiajs/cron": "^0.5.3",
+    "@elysiajs/eden": "0.5.5",
     "elysia": "^0.5.17",
     "http-auth-utils": "^4.0.0",
     "jwt-promisify": "^1.1.7",
