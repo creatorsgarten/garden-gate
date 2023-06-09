@@ -1,5 +1,4 @@
 import {Elysia, t} from 'elysia'
-import {cron} from '@elysiajs/cron'
 
 import {verifyRequestAuthenticity} from './verify'
 import {createTimedAccessCard} from './access'
@@ -8,7 +7,6 @@ import {createTimedAccessCard} from './access'
 const app = new Elysia()
 
 app
-  .use(cronPlugin)
   .get('/', () => ({status: 'Garden Gate is active.'}))
   .guard(
     {
