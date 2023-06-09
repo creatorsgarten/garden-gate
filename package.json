@@ -10,9 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "elysia": "^0.5.17"
+    "@elysiajs/cron": "^0.5.3",
+    "elysia": "^0.5.17",
+    "jwt-promisify": "^1.1.7"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.2",
     "bun-types": "^0.6.7"
   }
 }
