@@ -1,1 +1,3 @@
-# Garden Gate: Garden Zero Door Authorizer
+# Garden Gate: Garden Zero Door Authorizer, running on Raspberry Pi
+
+
