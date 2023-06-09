@@ -14,7 +14,6 @@ export async function createTimedAccessCard() {
 
   try {
     await doors.map(async (door) => {
-      // @todo #1 create a timed access card in the HikVision database.
       const res = await fetch(
         `http://${door.deviceIP}/ISAPI/AccessControl/CardInfo/Record?format=json`,
         {
@@ -62,7 +61,7 @@ export function createCardNumber() {
     '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
   return (
-    'garten-' +
+    'grtn-' +
     Array.from(
       crypto.getRandomValues(new Uint8Array(CARD_ID_LENGTH)),
       (x) => charSet[x % charSet.length]

@@ -1,9 +1,10 @@
 import {Elysia, t} from 'elysia'
 
 import {verifyRequestAuthenticity} from './verify'
-import {createTimedAccessCard} from './access'
+import {CARD_VALIDITY_IN_MINUTES} from './constants'
+import {createTimedAccessCard, deleteTimedAccessCard} from './access'
 
-// @todo #1 expose the server only to allowed hostnames for security
+// TODO: #1 expose the server only to allowed hostnames for security
 const app = new Elysia()
 
 app
@@ -16,11 +17,17 @@ app
     },
     (app) =>
       app.post('/access/generate', async () => {
-        await createTimedAccessCard()
+        // TODO: #1 revoke the prior access cards if the user has an unexpired card.
+        const cardNo = await createTimedAccessCard()
+
+        // Delete the timed access card after X minutes.
+        setTimeout(async () => {
+          await deleteTimedAccessCard(cardNo)
+        }, 1000 * 60 * CARD_VALIDITY_IN_MINUTES)
       })
   )
   .listen(3000)
 
 console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
+  `Garden gate is running at ${app.server?.hostname}:${app.server?.port}`
 )
