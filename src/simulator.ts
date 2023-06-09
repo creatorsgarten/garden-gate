@@ -6,6 +6,10 @@ import {
 } from "http-auth-utils";
 
 /*
+To run the simulator, run the following command:
+
+bun run src/simulator.ts
+
 To test with the simulator, use the following environment variables:
 
 HIKVISION_IP=127.0.0.1:3331
