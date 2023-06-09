@@ -88,6 +88,12 @@ const simulator = new Elysia()
         },
         (app) =>
             app
+                .model(
+                    '418',
+                    t.Object({
+                        something: t.String()
+                    })
+                )
                 .post(
                     '/Search',
                     ({
@@ -132,15 +138,20 @@ const simulator = new Elysia()
                 )
                 .post(
                     '/Record',
-                    ({ body }) => {
-                        cards.set(body.CardInfo.cardNo, {
-                            employeeNo: body.CardInfo.employeeNo,
-                            cardNo: body.CardInfo.cardNo,
-                            leaderCard: '',
-                            cardType: body.CardInfo.cardType
+                    ({
+                        body: {
+                            CardInfo,
+                            CardInfo: { cardNo, employeeNo }
+                        }
+                    }) => {
+                        cards.set(cardNo, {
+                            // This is strictly typed, shape must be exact
+                            // no problem with rest params
+                            ...CardInfo,
+                            leaderCard: ''
                         })
                         console.log(
-                            `[Record] Added card ${body.CardInfo.cardNo} for employee ${body.CardInfo.employeeNo}`
+                            `[Record] Added card ${cardNo} for employee ${employeeNo}`
                         )
                         return {
                             statusCode: 1,
