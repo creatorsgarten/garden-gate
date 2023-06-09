@@ -12,16 +12,19 @@ app
   .guard(
     {
       headers: t.Object({Authorization: t.String()}),
-      beforeHandle: (req) =>
-        verifyRequestAuthenticity(req.headers.Authorization ?? ''),
+      // beforeHandle: (req) =>
+      //   verifyRequestAuthenticity(req.headers.Authorization ?? ''),
     },
     (app) =>
       app.post('/access/generate', async () => {
         // TODO: #1 revoke the prior access cards if the user has an unexpired card.
         const cardNo = await createTimedAccessCard()
+        console.log('creating', cardNo)
 
         // Delete the timed access card after X minutes.
         setTimeout(async () => {
+          console.log('deleting', cardNo)
+
           await deleteTimedAccessCard(cardNo)
         }, 1000 * 60 * CARD_VALIDITY_IN_MINUTES)
       })
