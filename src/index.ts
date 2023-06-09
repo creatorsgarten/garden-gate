@@ -2,7 +2,7 @@ import {Elysia, t} from 'elysia'
 import {cron} from '@elysiajs/cron'
 
 import {verifyRequestAuthenticity} from './verify'
-import {createTimedAccessTicket} from './access'
+import {createTimedAccessCard} from './access'
 
 // @todo #1 expose the server only to allowed hostnames for security
 const app = new Elysia()
@@ -18,7 +18,7 @@ app
     },
     (app) =>
       app.post('/access/generate', async () => {
-        await createTimedAccessTicket()
+        await createTimedAccessCard()
       })
   )
   .listen(3000)
