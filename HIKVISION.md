@@ -85,3 +85,137 @@ Content-Type: application/json
   "subStatusCode": "ok"
 }
 ```
+
+## Fetch logs
+
+```http
+POST http://{{$dotenv HIKVISION_IP}}/ISAPI/AccessControl/AcsEvent?format=json
+Authorization: Digest admin {{$dotenv HIKVISION_ADMIN_PASSWORD}}
+Content-Type: application/json
+
+{
+  "AcsEventCond": {
+    "searchID": "{{$guid}}",
+    "searchResultPosition": 0,
+    "maxResults": 2000,
+    "major": 0,
+    "minor": 0,
+    "startTime": "{{$localDatetime iso8601 -1 h}}",
+    "endTime": "{{$localDatetime iso8601}}",
+    "employeeNoString": "{{$dotenv HIKVISION_EMPLOYEE_NO}}"
+  }
+}
+```
+
+```json
+HTTP/1.1 200 OK
+Date: Fri, 09 Jun 2023 20:07:40 GMT
+Server: webs
+Content-Length: 2208
+Connection: close
+X-Frame-Options: SAMEORIGIN
+Cache-Control: no-store
+Pragma: no-cache
+Content-Type: application/json
+
+{
+  "AcsEvent": {
+    "searchID": "b6e1244c-e50b-43e5-8407-e42230298bd3",
+    "totalMatches": 6,
+    "responseStatusStrg": "OK",
+    "numOfMatches": 6,
+    "InfoList": [
+      {
+        "major": 5,
+        "minor": 1,
+        "time": "2023-06-09T19:05:47+07:00",
+        "cardNo": "garten-XU7oiAB9AU01t",
+        "cardType": 1,
+        "name": "Creatorgarten",
+        "cardReaderNo": 1,
+        "doorNo": 1,
+        "employeeNoString": "100054",
+        "type": 0,
+        "serialNo": 42970,
+        "userType": "normal",
+        "currentVerifyMode": "cardOrFaceOrFp"
+      },
+      {
+        "major": 5,
+        "minor": 1,
+        "time": "2023-06-09T19:29:42+07:00",
+        "cardNo": "garten-Xn7E2BoG9fj8f",
+        "cardType": 1,
+        "name": "Creatorgarten",
+        "cardReaderNo": 1,
+        "doorNo": 1,
+        "employeeNoString": "100054",
+        "type": 0,
+        "serialNo": 42976,
+        "userType": "normal",
+        "currentVerifyMode": "cardOrFaceOrFp"
+      },
+      {
+        "major": 5,
+        "minor": 1,
+        "time": "2023-06-09T19:33:43+07:00",
+        "cardNo": "garten-SUXYtpk1x4opU",
+        "cardType": 1,
+        "name": "Creatorgarten",
+        "cardReaderNo": 1,
+        "doorNo": 1,
+        "employeeNoString": "100054",
+        "type": 0,
+        "serialNo": 42980,
+        "userType": "normal",
+        "currentVerifyMode": "cardOrFaceOrFp"
+      },
+      {
+        "major": 5,
+        "minor": 1,
+        "time": "2023-06-09T19:52:20+07:00",
+        "cardNo": "garten-Qg2XNleUKYHhm",
+        "cardType": 1,
+        "name": "Creatorgarten",
+        "cardReaderNo": 1,
+        "doorNo": 1,
+        "employeeNoString": "100054",
+        "type": 0,
+        "serialNo": 42984,
+        "userType": "normal",
+        "currentVerifyMode": "cardOrFaceOrFp"
+      },
+      {
+        "major": 5,
+        "minor": 1,
+        "time": "2023-06-09T19:53:33+07:00",
+        "cardNo": "garten-Qg2XNleUKYHhm",
+        "cardType": 1,
+        "name": "Creatorgarten",
+        "cardReaderNo": 1,
+        "doorNo": 1,
+        "employeeNoString": "100054",
+        "type": 0,
+        "serialNo": 42987,
+        "userType": "normal",
+        "currentVerifyMode": "cardOrFaceOrFp"
+      },
+      {
+        "major": 5,
+        "minor": 1,
+        "time": "2023-06-09T19:58:47+07:00",
+        "cardNo": "garten-Qg2XNleUKYHhm",
+        "cardType": 1,
+        "name": "Creatorgarten",
+        "cardReaderNo": 1,
+        "doorNo": 1,
+        "employeeNoString": "100054",
+        "type": 0,
+        "serialNo": 42991,
+        "userType": "normal",
+        "currentVerifyMode": "cardOrFaceOrFp"
+      }
+    ]
+  }
+}
+```
