@@ -1,28 +1,38 @@
-import jwt from 'jwt-promisify'
-
-import { AccessRequest } from './@types/AccessRequest'
 import { GATE_CONFIG } from './constants'
+import { createRemoteJWKSet, jwtVerify } from 'jose'
 
-const PUBLIC_KEY = GATE_CONFIG.publicKey
+const issuer = 'https://accounts.google.com'
+const keySetUrl = new URL('https://www.googleapis.com/oauth2/v3/certs')
+const keySet = createRemoteJWKSet(keySetUrl)
+function validate(jwt: string) {
+    return jwtVerify(jwt, keySet, {
+        issuer,
+        audience: GATE_CONFIG.allowedAudiences,
+    })
+}
 
 class AuthorizationError extends Error {
     code = 401
     status = 'Unauthorized'
+    constructor(message: string, cause?: unknown) {
+        super(message + (cause ? `: ${cause}` : ''), { cause })
+    }
 }
 
 export async function verifyRequestAuthenticity(
     authorization: string,
-): Promise<boolean> {
-    const match = authorization.match(/Bearer (.*)/)
+): Promise<void> {
+    const match = authorization.match(/^Bearer (.+)$/)
     if (!match) throw new AuthorizationError('Invalid authorization header.')
 
     const [_, token] = match
-
-    try {
-        await jwt.verify(token, PUBLIC_KEY)
-    } catch (err) {
-        throw new AuthorizationError('Invalid request token.')
+    const result = await validate(token).catch((e) => {
+        throw new AuthorizationError('Invalid authorization token.', e)
+    })
+    if (!result.payload.email_verified) {
+        throw new AuthorizationError('Email address not verified.')
     }
-
-    return true
+    if (!GATE_CONFIG.allowedEmails.includes(result.payload.email as string)) {
+        throw new AuthorizationError('Email address not in allowlist.')
+    }
 }

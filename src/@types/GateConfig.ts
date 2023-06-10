@@ -1,10 +1,7 @@
-import { JWK } from 'jose'
-
 export interface GateConfig {
     doors: DoorConfig[]
-
-    /** The public key to verify the authorization token's content. */
-    publicKey: JWK
+    allowedEmails: string[]
+    allowedAudiences: string[]
 }
 
 /**

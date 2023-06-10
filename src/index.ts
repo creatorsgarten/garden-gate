@@ -90,8 +90,9 @@ const app = new Elysia()
     .guard(
         {
             headers: t.Object({ authorization: t.String() }),
-            // beforeHandle: (req) =>
-            //   verifyRequestAuthenticity(req.headers.Authorization ?? ''),
+            beforeHandle: async (req) => {
+                await verifyRequestAuthenticity(req.headers.authorization ?? '')
+            },
         },
         (app) =>
             app.post(

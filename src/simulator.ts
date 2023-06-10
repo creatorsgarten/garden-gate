@@ -345,3 +345,7 @@ const simulator = new Elysia()
     .listen(3331)
 
 export type Simuator = typeof simulator
+
+console.log(
+    `Simulator for a Hikvision door access terminal is running at ${simulator.server?.hostname}:${simulator.server?.port}`,
+)
