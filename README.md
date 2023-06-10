@@ -39,7 +39,7 @@ POST http://localhost:3000/access/generate
 Authorization: Bearer dummy
 Content-Type: application/json
 
-{}
+{"accessId":"dummy"}
 ```
 
 Get public stats:
