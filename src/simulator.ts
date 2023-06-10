@@ -70,7 +70,24 @@ interface CardInfo {
     cardType: string
 }
 
+interface LogEvent {
+    major: 5
+    minor: 1
+    time: string
+    cardNo: string
+    cardType: 1
+    name: string
+    cardReaderNo: 1
+    doorNo: 1
+    employeeNoString: string
+    type: 0
+    serialNo: number
+    userType: 'normal'
+    currentVerifyMode: 'cardOrFaceOrFp'
+}
+
 const cards: Map<string, CardInfo> = new Map()
+const log: LogEvent[] = []
 
 const simulator = new Elysia()
     .get('/', async () => {
@@ -82,6 +99,11 @@ const simulator = new Elysia()
                 ...Array.from(cards.values()).map((card) =>
                     JSON.stringify(card),
                 ),
+                '',
+                'To attempt to access a door, send a POST request to /simulator/access with {"cardNo": "..."}',
+                '',
+                'Logs:',
+                ...log.map((event) => JSON.stringify(event)),
             ].join('\n'),
             {
                 headers: {
@@ -90,8 +112,38 @@ const simulator = new Elysia()
             },
         )
     })
+    .post(
+        '/simulator/access',
+        async ({ body: { cardNo } }) => {
+            const card = cards.get(cardNo)
+            if (!card) return badRequest(`card ${cardNo} not found`)
+            log.push({
+                major: 5,
+                minor: 1,
+                time: new Date(Date.now() + 7 * 3600e3)
+                    .toISOString()
+                    .replace(/\.\d+Z$/, '+07:00'),
+                cardNo: card.cardNo,
+                cardType: 1,
+                name: 'Creatorgarten',
+                cardReaderNo: 1,
+                doorNo: 1,
+                employeeNoString: card.employeeNo,
+                type: 0,
+                serialNo: 50000 + log.length,
+                userType: 'normal',
+                currentVerifyMode: 'cardOrFaceOrFp',
+            })
+            return { ok: true }
+        },
+        {
+            body: t.Object({
+                cardNo: t.String(),
+            }),
+        },
+    )
     .group(
-        '/ISAPI/AccessControl/CardInfo',
+        '/ISAPI',
         {
             beforeHandle: digestAuth,
             query: t.Optional(
@@ -112,7 +164,7 @@ const simulator = new Elysia()
                     }),
                 )
                 .post(
-                    '/Search',
+                    '/AccessControl/CardInfo/Search',
                     ({
                         body: {
                             CardInfoSearchCond: { EmployeeNoList, searchID },
@@ -154,7 +206,7 @@ const simulator = new Elysia()
                     },
                 )
                 .post(
-                    '/Record',
+                    '/AccessControl/CardInfo/Record',
                     ({
                         body: {
                             CardInfo,
@@ -184,20 +236,6 @@ const simulator = new Elysia()
                                 CardInfo: { cardNo, employeeNo },
                             },
                         }) {
-                            const cardNoRegex = /^[0-9a-zA-Z-]{1,20}$/
-                            if (!cardNoRegex.test(cardNo)) {
-                                return badRequest(
-                                    `invalid cardNo (must match ${cardNoRegex})`,
-                                )
-                            }
-
-                            const employeeNoRegex = /^[0-9]{1,12}$/
-                            if (!employeeNoRegex.test(employeeNo)) {
-                                return badRequest(
-                                    `invalid employeeNo (must match ${employeeNoRegex})`,
-                                )
-                            }
-
                             if (cards.has(cardNo)) {
                                 return new Response(
                                     `[simulator] cardNo ${cardNo} already exists`,
@@ -207,15 +245,19 @@ const simulator = new Elysia()
                         },
                         body: t.Object({
                             CardInfo: t.Object({
-                                employeeNo: t.String(),
-                                cardNo: t.String(),
+                                employeeNo: t.String({
+                                    pattern: '^[0-9]{1,12}$',
+                                }),
+                                cardNo: t.String({
+                                    pattern: '^[0-9a-zA-Z-]{1,20}$',
+                                }),
                                 cardType: t.Literal('normalCard'),
                             }),
                         }),
                     },
                 )
                 .put(
-                    '/Delete',
+                    '/AccessControl/CardInfo/Delete',
                     ({
                         body: {
                             CardInfoDelCond: { CardNoList },
@@ -251,8 +293,54 @@ const simulator = new Elysia()
                             }),
                         }),
                     },
+                )
+                // POST /ISAPI/AccessControl/AcsEvent
+                .post(
+                    '/AccessControl/AcsEvent',
+                    ({ body }) => {
+                        const matched = log.filter(
+                            (entry) =>
+                                entry.time >= body.AcsEventCond.startTime &&
+                                entry.time <= body.AcsEventCond.endTime &&
+                                body.AcsEventCond.employeeNoString ===
+                                    entry.employeeNoString,
+                        )
+                        return {
+                            AcsEvent: {
+                                searchID: body.AcsEventCond.searchID,
+                                totalMatches: matched.length,
+                                responseStatusStrg: 'OK',
+                                numOfMatches: matched.length,
+                                InfoList: matched,
+                            },
+                        }
+                    },
+                    {
+                        body: t.Object({
+                            AcsEventCond: t.Object({
+                                searchID: t.String({
+                                    pattern:
+                                        '^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+                                }),
+                                searchResultPosition: t.Number(),
+                                maxResults: t.Number(),
+                                major: t.Literal(0),
+                                minor: t.Number(),
+                                startTime: t.String({
+                                    pattern:
+                                        '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\+07:00$',
+                                }),
+                                endTime: t.String({
+                                    pattern:
+                                        '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\+07:00$',
+                                }),
+                                employeeNoString: t.String({
+                                    pattern: '^[0-9]{1,12}$',
+                                }),
+                            }),
+                        }),
+                    },
                 ),
-        // TODO: Implement POST /ISAPI/AccessControl/AcsEvent
     )
     .listen(3331)
 
