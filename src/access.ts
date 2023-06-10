@@ -3,8 +3,6 @@ import type { Simuator } from './simulator'
 import { CARD_ID_LENGTH, GATE_CONFIG } from './constants'
 import DigestClient from 'digest-fetch'
 import { GateConfig } from './@types/GateConfig'
-import { randomUUID } from 'crypto'
-import ObjectID from 'bson-objectid'
 
 const { doors } = GATE_CONFIG
 
@@ -26,7 +24,6 @@ function createDoorClient(door: GateConfig['doors'][number]) {
 /** Create a timed access card. */
 export async function createTimedAccessCard() {
     const cardNo = createCardNumber()
-    const cardId = ObjectID().toHexString()
 
     try {
         const responses = await Promise.all(
@@ -62,17 +59,7 @@ export async function createTimedAccessCard() {
     }
 
     return {
-        /**
-         * The card number that is added to the door access system.
-         * Use this to generate the QR code.
-         */
         cardNo,
-
-        /**
-         * A unique ID for the card. May be exposed publicly.
-         * This is used for tracking only and does not provide any access.
-         */
-        cardId,
     }
 }
 

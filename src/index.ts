@@ -27,8 +27,8 @@ const app = new Elysia()
         (app) =>
             app.post('/access/generate', async () => {
                 // TODO: #1 revoke the prior access cards if the user has an unexpired card.
-                const { cardNo, cardId } = await createTimedAccessCard()
-                console.log(`created: ${cardNo} (${cardId})`)
+                const { cardNo } = await createTimedAccessCard()
+                console.log(`created: ${cardNo}`)
 
                 // Delete the timed access card after X minutes.
                 let timeoutIn = 1000 * 60 * CARD_VALIDITY_IN_MINUTES
@@ -39,7 +39,6 @@ const app = new Elysia()
                 }, timeoutIn)
 
                 return {
-                    accessId: cardId,
                     accessKey: cardNo,
                     createdAt: new Date(),
                     expiresAt: new Date(Date.now() + timeoutIn),
