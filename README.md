@@ -69,3 +69,22 @@ GET http://localhost:3000/stats-public
     ```sh
     git clone https://github.com/creatorsgarten/garden-gate-pi.git
     ```
+
+9. Create and edit `config.json`:
+
+    ```sh
+    cp config.example.json config.json
+    vi config.json
+    ```
+
+10. Run the service:
+
+    ```sh
+    docker compose up -d
+    ```
+
+## Deploying new code
+
+```sh
+docker compose pull && docker compose up -d
+```
