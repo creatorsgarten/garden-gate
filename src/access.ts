@@ -5,7 +5,10 @@ import { CARD_ID_LENGTH, GATE_CONFIG } from './constants'
 const { doors } = GATE_CONFIG
 
 class CardCreationError extends Error {
-    message = 'Failed to create a timed access card.'
+    constructor(cause: unknown) {
+        super('Failed to create a timed access card.', { cause })
+        this.name = 'CardCreationError'
+    }
 }
 
 /** Create a timed access card. */
@@ -14,7 +17,7 @@ export async function createTimedAccessCard() {
 
     try {
         const response = await doors.map(
-            async ({ username, password, deviceIP }) => {
+            async ({ username, password, host: deviceIP }) => {
                 const {
                     ISAPI: {
                         AccessControl: { CardInfo },
@@ -66,7 +69,7 @@ export async function createTimedAccessCard() {
             },
         )
     } catch (err) {
-        throw new CardCreationError()
+        throw new CardCreationError(err)
     }
 
     return cardNo
@@ -75,7 +78,7 @@ export async function createTimedAccessCard() {
 /** As the card is timed, we should schedule a cronjob to delete it within minutes. */
 export async function deleteTimedAccessCard(cardNo: string) {
     try {
-        await doors.map(async ({ deviceIP, password }) => {
+        await doors.map(async ({ host: deviceIP, password }) => {
             const {
                 ISAPI: {
                     AccessControl: { CardInfo },
