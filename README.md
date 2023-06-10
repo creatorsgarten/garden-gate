@@ -88,7 +88,7 @@ GET http://localhost:3310/stats-public
     git clone https://github.com/creatorsgarten/garden-gate-pi.git
     ```
 
-9. Create and edit `config.json`:
+9. Create and edit `config.json` to set up the doors:
 
     ```sh
     cp config.example.json config.json
