@@ -4,6 +4,8 @@ import { CARD_ID_LENGTH, GATE_CONFIG } from './constants'
 import DigestClient from 'digest-fetch'
 import { GateConfig } from './@types/GateConfig'
 
+type Door = GateConfig['doors'][number]
+
 const { doors } = GATE_CONFIG
 
 class CardCreationError extends Error {
@@ -58,34 +60,55 @@ export async function createTimedAccessCard(cardNo: string) {
 }
 
 /** As the card is timed, we should schedule a cronjob to delete it within minutes. */
-export async function deleteTimedAccessCard(cardNo: string) {
-    try {
-        return Promise.all(
-            doors.map(async (door) => {
-                const { ISAPI } = createDoorClient(door)
+export async function deleteTimedAccessCard(door: Door, cardNo: string) {
+    const { ISAPI } = createDoorClient(door)
 
-                const { data, error } =
-                    await ISAPI.AccessControl.CardInfo.Delete.put({
-                        $query: {
-                            format: 'json',
-                        },
-                        CardInfoDelCond: {
-                            CardNoList: [{ cardNo }],
-                        },
-                    })
+    const { error } = await ISAPI.AccessControl.CardInfo.Delete.put({
+        $query: {
+            format: 'json',
+        },
+        CardInfoDelCond: {
+            CardNoList: [{ cardNo }],
+        },
+    })
 
-                // Error need to be handle to unwrap null type from data (type guard)
-                if (error) {
-                    throw new Error(
-                        `Unable to delete card with the door "${door.name}" with error ${error.status} ${error.value}`,
-                        { cause: error },
-                    )
-                }
-
-                data
-            }),
+    // Error need to be handle to unwrap null type from data (type guard)
+    if (error) {
+        throw new Error(
+            `Unable to delete card with the door "${door.name}" with error ${error.status} ${error.value}`,
+            { cause: error },
         )
-    } catch (err) {}
+    }
+}
+
+export async function getCards() {
+    return Promise.all(
+        doors.map(async (door) => {
+            const { ISAPI } = createDoorClient(door)
+
+            const { data, error } =
+                await ISAPI.AccessControl.CardInfo.Search.post({
+                    $query: {
+                        format: 'json',
+                    },
+                    CardInfoSearchCond: {
+                        maxResults: 2000,
+                        searchID: crypto.randomUUID(),
+                        searchResultPosition: 0,
+                        EmployeeNoList: [{ employeeNo: door.employeeNo }],
+                    },
+                })
+
+            if (error) {
+                throw error
+            }
+
+            return data.CardInfoSearch.CardInfo.map((card) => ({
+                door,
+                card,
+            }))
+        }),
+    ).then((a) => a.flat())
 }
 
 export async function getDoorStats() {
