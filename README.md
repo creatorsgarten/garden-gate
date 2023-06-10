@@ -86,6 +86,7 @@ GET http://localhost:3310/stats-public
 
     ```sh
     git clone https://github.com/creatorsgarten/garden-gate-pi.git
+    cd garden-gate-pi
     ```
 
 9. Create and edit `config.json` to set up the doors:
