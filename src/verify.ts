@@ -11,7 +11,7 @@ class AuthorizationError extends Error {
 }
 
 export async function verifyRequestAuthenticity(
-    authorization: string
+    authorization: string,
 ): Promise<boolean> {
     const match = authorization.match(/Bearer (.*)/)
     if (!match) throw new AuthorizationError('Invalid authorization header.')

@@ -17,24 +17,24 @@ export async function createTimedAccessCard() {
             async ({ username, password, deviceIP }) => {
                 const {
                     ISAPI: {
-                        AccessControl: { CardInfo }
-                    }
+                        AccessControl: { CardInfo },
+                    },
                 } = edenTreaty<Simuator>(deviceIP)
 
                 const { data, error } = await CardInfo.Record.post({
                     $query: {
-                        format: 'json'
+                        format: 'json',
                     },
                     $fetch: {
                         headers: {
-                            Authorization: `Digest admin ${password}`
-                        }
+                            Authorization: `Digest admin ${password}`,
+                        },
                     },
                     CardInfo: {
                         employeeNo: username,
                         cardNo,
-                        cardType: 'normalCard'
-                    }
+                        cardType: 'normalCard',
+                    },
                 })
 
                 // Error need to be handle to unwrap null type from data (type guard)
@@ -63,7 +63,7 @@ export async function createTimedAccessCard() {
                 //         headers: { Authorization: `Digest admin ${password}` }
                 //     }
                 // )
-            }
+            },
         )
     } catch (err) {
         throw new CardCreationError()
@@ -78,17 +78,17 @@ export async function deleteTimedAccessCard(cardNo: string) {
         await doors.map(async ({ deviceIP, password }) => {
             const {
                 ISAPI: {
-                    AccessControl: { CardInfo }
-                }
+                    AccessControl: { CardInfo },
+                },
             } = edenTreaty<Simuator>(deviceIP)
 
             const { data, error } = await CardInfo.Delete.put({
                 $query: {
-                    format: 'json'
+                    format: 'json',
                 },
                 CardInfoDelCond: {
-                    CardNoList: [{ cardNo }]
-                }
+                    CardNoList: [{ cardNo }],
+                },
             })
 
             // Error need to be handle to unwrap null type from data (type guard)
@@ -127,7 +127,7 @@ export function createCardNumber() {
         'grtn-' +
         Array.from(
             crypto.getRandomValues(new Uint8Array(CARD_ID_LENGTH)),
-            (x) => charSet[x % charSet.length]
+            (x) => charSet[x % charSet.length],
         ).join('')
     )
 }

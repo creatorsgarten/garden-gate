@@ -9,7 +9,7 @@ const app = new Elysia()
     .get('/', () => ({ status: 'Garden Gate is active.' }))
     .guard(
         {
-            headers: t.Object({ Authorization: t.String() })
+            headers: t.Object({ Authorization: t.String() }),
             // beforeHandle: (req) =>
             //   verifyRequestAuthenticity(req.headers.Authorization ?? ''),
         },
@@ -27,11 +27,14 @@ const app = new Elysia()
                     // await deleteTimedAccessCard(cardNo)
                 }, timeoutIn)
 
-                return { cardNo, expireAt: new Date(new Date().valueOf() + timeoutIn)  }
-            })
+                return {
+                    cardNo,
+                    expireAt: new Date(new Date().valueOf() + timeoutIn),
+                }
+            }),
     )
     .listen(3000)
 
 console.log(
-    `Garden gate is running at ${app.server?.hostname}:${app.server?.port}`
+    `Garden gate is running at ${app.server?.hostname}:${app.server?.port}`,
 )

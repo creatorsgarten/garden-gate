@@ -1,8 +1,8 @@
 export interface GateConfig {
-  doors: DoorConfig[]
+    doors: DoorConfig[]
 
-  /** The public key to verify the authorization token's content. */
-  publicKey: string
+    /** The public key to verify the authorization token's content. */
+    publicKey: string
 }
 
 /**
@@ -10,8 +10,8 @@ export interface GateConfig {
  * Stored on-device on the Raspberry Pi.
  **/
 export interface DoorConfig {
-  name: string
-  deviceIP: string
-  username: string
-  password: string
+    name: string
+    deviceIP: string
+    username: string
+    password: string
 }

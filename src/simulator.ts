@@ -2,7 +2,7 @@ import { Elysia, t, type Context } from 'elysia'
 import {
     DIGEST,
     parseAuthorizationHeader,
-    buildWWWAuthenticateHeader
+    buildWWWAuthenticateHeader,
 } from 'http-auth-utils'
 
 /*
@@ -36,7 +36,7 @@ function digestAuth({ headers, request: { method } }: Context<any>) {
         nonce: result.data.nonce,
         nc: result.data.nc || '',
         method: method.toUpperCase(),
-        cnonce: result.data.cnonce || ''
+        cnonce: result.data.cnonce || '',
     })
     if (hash !== result.data.response) {
         return unauthorized('invalid digest hash')
@@ -50,16 +50,16 @@ function digestAuth({ headers, request: { method } }: Context<any>) {
                     realm,
                     qop,
                     nonce: '1234567890',
-                    opaque: '0987654321'
-                })
-            }
+                    opaque: '0987654321',
+                }),
+            },
         })
     }
 }
 
 function badRequest(message: string): any {
     return new Response(`[simulator: bad request] ${message}`, {
-        status: 400
+        status: 400,
     })
 }
 
@@ -79,34 +79,34 @@ const simulator = new Elysia()
             beforeHandle: digestAuth,
             query: t.Optional(
                 t.Object({
-                    format: t.Literal('json')
-                })
+                    format: t.Literal('json'),
+                }),
             ),
             headers: t.Object({
-                authorization: t.String()
-            })
+                authorization: t.String(),
+            }),
         },
         (app) =>
             app
                 .model(
                     '418',
                     t.Object({
-                        something: t.String()
-                    })
+                        something: t.String(),
+                    }),
                 )
                 .post(
                     '/Search',
                     ({
                         body: {
-                            CardInfoSearchCond: { EmployeeNoList, searchID }
-                        }
+                            CardInfoSearchCond: { EmployeeNoList, searchID },
+                        },
                     }) => {
                         const found = Array.from(cards.values()).filter(
                             (card) =>
                                 EmployeeNoList.some(
                                     (employee) =>
-                                        employee.employeeNo === card.employeeNo
-                                )
+                                        employee.employeeNo === card.employeeNo,
+                                ),
                         )
 
                         console.log(`[Search] Found ${found.length} cards`)
@@ -117,8 +117,8 @@ const simulator = new Elysia()
                                 responseStatusStrg: 'OK',
                                 numOfMatches: found.length,
                                 totalMatches: found.length,
-                                CardInfo: found
-                            }
+                                CardInfo: found,
+                            },
                         }
                     },
                     {
@@ -129,34 +129,34 @@ const simulator = new Elysia()
                                 searchResultPosition: t.Number(),
                                 EmployeeNoList: t.Array(
                                     t.Object({
-                                        employeeNo: t.String()
-                                    })
-                                )
-                            })
-                        })
-                    }
+                                        employeeNo: t.String(),
+                                    }),
+                                ),
+                            }),
+                        }),
+                    },
                 )
                 .post(
                     '/Record',
                     ({
                         body: {
                             CardInfo,
-                            CardInfo: { cardNo, employeeNo }
-                        }
+                            CardInfo: { cardNo, employeeNo },
+                        },
                     }) => {
                         cards.set(cardNo, {
                             // This is strictly typed, shape must be exact
                             // no problem with rest params
                             ...CardInfo,
-                            leaderCard: ''
+                            leaderCard: '',
                         })
                         console.log(
-                            `[Record] Added card ${cardNo} for employee ${employeeNo}`
+                            `[Record] Added card ${cardNo} for employee ${employeeNo}`,
                         )
                         return {
                             statusCode: 1,
                             statusString: 'OK',
-                            subStatusCode: 'ok'
+                            subStatusCode: 'ok',
                         }
                     },
                     {
@@ -164,20 +164,20 @@ const simulator = new Elysia()
                         // Business logic is put in the main handler
                         beforeHandle({
                             body: {
-                                CardInfo: { cardNo }
-                            }
+                                CardInfo: { cardNo },
+                            },
                         }) {
                             const cardNoRegex = /^[0-9a-zA-Z-]{1,20}$/
                             if (!cardNoRegex.test(cardNo)) {
                                 return badRequest(
-                                    `invalid cardNo (must match ${cardNoRegex})`
+                                    `invalid cardNo (must match ${cardNoRegex})`,
                                 )
                             }
 
                             if (cards.has(cardNo)) {
                                 return new Response(
                                     `[simulator] cardNo ${cardNo} already exists`,
-                                    { status: 409 }
+                                    { status: 409 },
                                 )
                             }
                         },
@@ -185,35 +185,35 @@ const simulator = new Elysia()
                             CardInfo: t.Object({
                                 employeeNo: t.String(),
                                 cardNo: t.String(),
-                                cardType: t.Literal('normalCard')
-                            })
-                        })
-                    }
+                                cardType: t.Literal('normalCard'),
+                            }),
+                        }),
+                    },
                 )
                 .put(
                     '/Delete',
                     ({
                         body: {
-                            CardInfoDelCond: { CardNoList }
-                        }
+                            CardInfoDelCond: { CardNoList },
+                        },
                     }) => {
                         for (const cardNo of CardNoList) {
                             if (!cards.has(cardNo.cardNo)) {
                                 console.log(
-                                    `[Delete] Card ${cardNo.cardNo} not found`
+                                    `[Delete] Card ${cardNo.cardNo} not found`,
                                 )
                                 continue
                             }
                             cards.delete(cardNo.cardNo)
                             console.log(
-                                `[Delete] Deleted card ${cardNo.cardNo}`
+                                `[Delete] Deleted card ${cardNo.cardNo}`,
                             )
                         }
 
                         return {
                             statusCode: 1,
                             statusString: 'OK',
-                            subStatusCode: 'ok'
+                            subStatusCode: 'ok',
                         }
                     },
                     {
@@ -221,13 +221,13 @@ const simulator = new Elysia()
                             CardInfoDelCond: t.Object({
                                 CardNoList: t.Array(
                                     t.Object({
-                                        cardNo: t.String()
-                                    })
-                                )
-                            })
-                        })
-                    }
-                )
+                                        cardNo: t.String(),
+                                    }),
+                                ),
+                            }),
+                        }),
+                    },
+                ),
         // TODO: Implement POST /ISAPI/AccessControl/AcsEvent
     )
     .listen(3331)

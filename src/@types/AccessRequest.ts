@@ -1,3 +1,3 @@
 export interface AccessRequest {
-  memberId: string
+    memberId: string
 }

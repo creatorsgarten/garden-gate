@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.2",
-    "bun-types": "^0.6.7"
+    "bun-types": "^0.6.7",
+    "prettier": "^2.8.8"
   }
 }
