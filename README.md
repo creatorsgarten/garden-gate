@@ -34,6 +34,22 @@ To set up a development environment:
 
 7. Copy the service account’s email address from the credentials file to the config file’s `allowedEmails` array.
 
+8. Create an `.env` file and put in `ID_TOKEN=<id-token>`
+
+9. Run the simulator (in another terminal):
+
+    ```sh
+    bun src/simulator.ts
+    ```
+
+10. Run the server:
+
+    ```sh
+    bun src/index.ts
+    ```
+
+11. Use VS Code [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) to test the API by clicking the **Send Request** link in the code blocks below.
+
 Generate an access card:
 
 ```http
@@ -41,7 +57,7 @@ POST http://localhost:3310/access/generate
 Authorization: Bearer {{$dotenv ID_TOKEN}}
 Content-Type: application/json
 
-{"accessId":"dummy"}
+{"accessId":"{{$guid}}"}
 ```
 
 Get public stats:
