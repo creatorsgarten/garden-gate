@@ -80,7 +80,7 @@ GET http://localhost:3310/stats-public
 
 6. Install Docker: `curl -sSL https://get.docker.com | sh`
 
-7. Set up Cloudflare tunnel.
+7. Set up Cloudflare tunnel to expose `localhost:3000` over the internet.
 
 8. Set up Docker Compose project:
 
