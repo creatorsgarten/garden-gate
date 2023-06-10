@@ -9,7 +9,8 @@
             "name": "Simulator",
             "host": "127.0.0.1:3331",
             "username": "admin",
-            "password": "simulatorPassword"
+            "password": "simulatorPassword",
+            "employeeNo": "123456"
         }
     ]
 }

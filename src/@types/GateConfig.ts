@@ -16,4 +16,5 @@ export interface DoorConfig {
     host: string
     username: string
     password: string
+    employeeNo: string
 }

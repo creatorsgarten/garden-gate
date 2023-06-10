@@ -2,14 +2,25 @@ import { Elysia, t } from 'elysia'
 
 import { CARD_VALIDITY_IN_MINUTES } from './constants'
 import { verifyRequestAuthenticity } from './verify'
-import { createTimedAccessCard, deleteTimedAccessCard } from './access'
+import {
+    createTimedAccessCard,
+    deleteTimedAccessCard,
+    getDoorStats,
+} from './access'
 
 // TODO: #1 expose the server only to allowed hostnames for security
 const app = new Elysia()
+    .onError(({ error }) => {
+        console.error(error)
+        throw error
+    })
     .get('/', () => ({ status: 'Garden Gate is active.' }))
+    .get('/stats-public', async () => {
+        return { doors: await getDoorStats() }
+    })
     .guard(
         {
-            headers: t.Object({ Authorization: t.String() }),
+            headers: t.Object({ authorization: t.String() }),
             // beforeHandle: (req) =>
             //   verifyRequestAuthenticity(req.headers.Authorization ?? ''),
         },

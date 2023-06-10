@@ -83,7 +83,7 @@ const simulator = new Elysia()
                 }),
             ),
             headers: t.Object({
-                authorization: t.String(),
+                authorization: t.Optional(t.String()),
             }),
         },
         (app) =>
@@ -164,13 +164,20 @@ const simulator = new Elysia()
                         // Business logic is put in the main handler
                         beforeHandle({
                             body: {
-                                CardInfo: { cardNo },
+                                CardInfo: { cardNo, employeeNo },
                             },
                         }) {
                             const cardNoRegex = /^[0-9a-zA-Z-]{1,20}$/
                             if (!cardNoRegex.test(cardNo)) {
                                 return badRequest(
                                     `invalid cardNo (must match ${cardNoRegex})`,
+                                )
+                            }
+
+                            const employeeNoRegex = /^[0-9]{1,12}$/
+                            if (!employeeNoRegex.test(employeeNo)) {
+                                return badRequest(
+                                    `invalid employeeNo (must match ${employeeNoRegex})`,
                                 )
                             }
 

@@ -31,3 +31,19 @@ Corresponding public key:
     "n": "wFFyJnZ72SU7cAHZOhXtYDAFFqQekm35I2Iupy_Pam0fPibx_LH_uYnZ80Jj-YoMEHcA-vLOmoxEZ20L66ZUrNWi27h3Pbtp0SPWJpfEY8lWGSkFO_ARF3k1CB666FcKRC3ub4UdPoj5skper-KrxXp7env2qFTt2DjM2zSUdg6fZuTFMRr4A1fx3dCKVapDAwAOZgPjU6EYtpGiKa2A7FmXsRKg0BdjFlLfYSADxjwM7hOR5q106Fq1JJAzUPbDlRMlIlno0WYhbCpHJzBIhOoTi-xUi_4A3F2U9Om29PAO4qAyW6HVCA_BHyjvCEkhkyxoGnFTCPC4PROFU91pNQ"
 }
 ```
+
+Generate an access card:
+
+```http
+POST http://localhost:3000/access/generate
+Authorization: Bearer dummy
+Content-Type: application/json
+
+{}
+```
+
+Get public stats:
+
+```http
+GET http://localhost:3000/stats-public
+```
