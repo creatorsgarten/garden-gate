@@ -22,9 +22,7 @@ function createDoorClient(door: GateConfig['doors'][number]) {
 }
 
 /** Create a timed access card. */
-export async function createTimedAccessCard() {
-    const cardNo = createCardNumber()
-
+export async function createTimedAccessCard(cardNo: string) {
     try {
         const responses = await Promise.all(
             doors.map(async (door) => {
@@ -56,10 +54,6 @@ export async function createTimedAccessCard() {
         )
     } catch (err) {
         throw new CardCreationError(err)
-    }
-
-    return {
-        cardNo,
     }
 }
 

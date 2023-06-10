@@ -3,6 +3,7 @@ import { Database } from 'bun:sqlite'
 import { CARD_VALIDITY_IN_MINUTES } from './constants'
 import { verifyRequestAuthenticity } from './verify'
 import {
+    createCardNumber,
     createTimedAccessCard,
     deleteTimedAccessCard,
     getDoorStats,
@@ -46,22 +47,14 @@ const app = new Elysia()
             app.post(
                 '/access/generate',
                 async ({ body: { accessId } }) => {
-                    // TODO: #1 revoke the prior access cards if the user has an unexpired card.
-                    const { cardNo } = await createTimedAccessCard()
-                    console.log(`created: ${cardNo}`)
-
-                    // Delete the timed access card after X minutes.
-                    // TODO: Replace this code with a worker than runs every, say, 15 seconds
-                    //  that queries the database for an expired card and deletes it.
-                    let timeoutIn = 1000 * 60 * CARD_VALIDITY_IN_MINUTES
-                    setTimeout(async () => {
-                        console.log('deleting', cardNo)
-
-                        // await deleteTimedAccessCard(cardNo)
-                    }, timeoutIn)
-
+                    const cardNo = createCardNumber()
+                    const timeoutIn = 1000 * 60 * CARD_VALIDITY_IN_MINUTES
                     const createdAt = new Date()
                     const expiresAt = new Date(Date.now() + timeoutIn)
+
+                    // We must first insert the card into the database before creating it in Hikvision.
+                    // Otherwise, there may be a race condition in which a cleanup worker run between
+                    // the database insertion and the Hikvision creation.
                     db.query(
                         `INSERT INTO timed_access_cards (
                             card_no,
@@ -80,6 +73,23 @@ const app = new Elysia()
                         $createdAt: createdAt.toISOString(),
                         $expiresAt: expiresAt.toISOString(),
                     })
+
+                    await createTimedAccessCard(cardNo)
+                    console.log(`created: ${cardNo}`)
+
+                    // Delete the timed access card after X minutes.
+                    // TODO: Replace this code with a worker than runs every, say, 15 seconds.
+                    //  In each iteration, the worker should do these:
+                    //   1. Query the active cards from Hikvision.
+                    //   2. For each active card:
+                    //       1. Check if it exists in the database. If not, delete it from Hikvision.
+                    //       2. If it exists in the database, check if it has expired. If so, delete it from Hikvision and the database.
+                    setTimeout(async () => {
+                        console.log('deleting', cardNo)
+
+                        // await deleteTimedAccessCard(cardNo)
+                    }, timeoutIn)
+
                     return {
                         accessKey: cardNo,
                         createdAt,
