@@ -73,6 +73,23 @@ interface CardInfo {
 const cards: Map<string, CardInfo> = new Map()
 
 const simulator = new Elysia()
+    .get('/', async () => {
+        return new Response(
+            [
+                'This is a simulator for a Hikvision door access terminal.',
+                '',
+                'Currently registered cards:',
+                ...Array.from(cards.values()).map((card) =>
+                    JSON.stringify(card),
+                ),
+            ].join('\n'),
+            {
+                headers: {
+                    'content-type': 'text/plain',
+                },
+            },
+        )
+    })
     .group(
         '/ISAPI/AccessControl/CardInfo',
         {
