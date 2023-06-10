@@ -47,3 +47,25 @@ Get public stats:
 ```http
 GET http://localhost:3000/stats-public
 ```
+
+# Raspberry Pi Setup
+
+1. Flash an Debian Bullseye arm64 into an SD card.
+
+2. Set up networking ([LAN](https://learn.sparkfun.com/tutorials/headless-raspberry-pi-setup/ethernet-with-static-ip-address), [Wi-Fi](https://learn.sparkfun.com/tutorials/headless-raspberry-pi-setup/wifi-with-dhcp)).
+
+3. [Set up default user (see _Headless setup_ section).](https://www.raspberrypi.com/news/raspberry-pi-bullseye-update-april-2022/)
+
+4. Put the SD card into the Pi and boot it up.
+
+5. SSH into the Pi: `ssh pi@raspberrypi.local`
+
+6. Install Docker: `curl -sSL https://get.docker.com | sh`
+
+7. Set up Cloudflare tunnel.
+
+8. Set up Docker Compose project:
+
+    ```sh
+    git clone https://github.com/creatorsgarten/garden-gate-pi.git
+    ```

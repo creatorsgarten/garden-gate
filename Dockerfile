@@ -25,4 +25,5 @@ COPY src src
 ENV ENV production
 CMD ["./bun", "src/index.ts"]
 
+ENV PORT 3000
 EXPOSE 3000

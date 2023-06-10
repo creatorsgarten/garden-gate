@@ -138,7 +138,7 @@ const app = new Elysia()
                 },
             ),
     )
-    .listen(3000)
+    .listen(+Bun.env.PORT! || 3310)
 
 console.log(
     `Garden gate is running at ${app.server?.hostname}:${app.server?.port}`,
