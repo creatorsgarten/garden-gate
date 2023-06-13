@@ -12,7 +12,7 @@ import { createCardNumber } from './createCardNumber'
 
 const db = new Database('.data/gardengate.sqlite')
 
-// Create a table for
+// Create a table for timed_access_cards
 db.query(
     `CREATE TABLE IF NOT EXISTS timed_access_cards (
         card_no TEXT PRIMARY KEY,
