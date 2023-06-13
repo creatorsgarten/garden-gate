@@ -36,3 +36,5 @@ jobs:
           tags: ghcr.io/${{ github.repository }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            APP_VERSION=${{ github.sha }}

@@ -1,6 +1,6 @@
 import { edenTreaty } from '@elysiajs/eden'
 import type { Simuator } from './simulator'
-import { CARD_ID_LENGTH, GATE_CONFIG } from './constants'
+import { GATE_CONFIG } from './constants'
 import DigestClient from 'digest-fetch'
 import { GateConfig } from './@types/GateConfig'
 
@@ -138,18 +138,5 @@ export async function getDoorStats() {
                 count: data.CardInfoSearch.CardInfo.length,
             }
         }),
-    )
-}
-
-export function createCardNumber() {
-    const charSet =
-        '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-
-    return (
-        'grtn-' +
-        Array.from(
-            crypto.getRandomValues(new Uint8Array(CARD_ID_LENGTH)),
-            (x) => charSet[x % charSet.length],
-        ).join('')
     )
 }

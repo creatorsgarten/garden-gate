@@ -1,14 +1,14 @@
 import { Elysia, t } from 'elysia'
 import { Database } from 'bun:sqlite'
-import { CARD_VALIDITY_IN_MINUTES } from './constants'
+import { APP_VERSION, CARD_VALIDITY_IN_MINUTES } from './constants'
 import { verifyRequestAuthenticity } from './verify'
 import {
-    createCardNumber,
     createTimedAccessCard,
     deleteTimedAccessCard,
     getCards,
     getDoorStats,
 } from './access'
+import { createCardNumber } from './createCardNumber'
 
 const db = new Database('.data/gardengate.sqlite')
 
@@ -17,6 +17,7 @@ db.query(
     `CREATE TABLE IF NOT EXISTS timed_access_cards (
         card_no TEXT PRIMARY KEY,
         access_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         expires_at DATETIME NOT NULL
     )`,
@@ -25,6 +26,7 @@ db.query(
 interface TimedAccessCard {
     card_no: string
     access_id: string
+    user_id: string
     created_at: string
     expires_at: string
 }
@@ -97,8 +99,8 @@ const app = new Elysia()
         (app) =>
             app.post(
                 '/access/generate',
-                async ({ body: { accessId } }) => {
-                    const cardNo = createCardNumber()
+                async ({ body: { accessId, prefix, userId } }) => {
+                    const cardNo = createCardNumber(prefix)
                     const timeoutIn = 1000 * 60 * CARD_VALIDITY_IN_MINUTES
                     const createdAt = new Date()
                     const expiresAt = new Date(Date.now() + timeoutIn)
@@ -110,17 +112,20 @@ const app = new Elysia()
                         `INSERT INTO timed_access_cards (
                             card_no,
                             access_id,
+                            user_id,
                             created_at,
                             expires_at
                         ) VALUES (
                             $cardNo,
                             $accessId,
+                            $userId,
                             $createdAt,
                             $expiresAt
                         )`,
                     ).all({
                         $cardNo: cardNo,
                         $accessId: accessId,
+                        $userId: userId,
                         $createdAt: createdAt.toISOString(),
                         $expiresAt: expiresAt.toISOString(),
                     })
@@ -135,12 +140,16 @@ const app = new Elysia()
                     }
                 },
                 {
-                    body: t.Object({ accessId: t.String() }),
+                    body: t.Object({
+                        accessId: t.String(),
+                        userId: t.String(),
+                        prefix: t.String({ pattern: '^[a-zA-Z]{0,10}$' }),
+                    }),
                 },
             ),
     )
     .listen(+Bun.env.PORT! || 3310)
 
 console.log(
-    `Garden gate is running at ${app.server?.hostname}:${app.server?.port}`,
+    `Garden gate [${APP_VERSION}] is running at ${app.server?.hostname}:${app.server?.port}`,
 )

@@ -27,3 +27,6 @@ CMD ["./bun", "src/index.ts"]
 
 ENV PORT 3000
 EXPOSE 3000
+
+ARG APP_VERSION=unknown
+ENV APP_VERSION=${APP_VERSION}
