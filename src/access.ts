@@ -147,7 +147,7 @@ function formatTimeAsiaBangkok(time = Date.now()) {
         .replace(/\.\d+Z$/, '+07:00')
 }
 
-export async function getLogs() {
+export async function getLogs(timeLimitSeconds: number) {
     const perDoor = await Promise.all(
         doors.map(async (door) => {
             const { ISAPI } = createDoorClient(door)
@@ -161,8 +161,10 @@ export async function getLogs() {
                     maxResults: 2000,
                     major: 0,
                     minor: 0,
-                    startTime: formatTimeAsiaBangkok(Date.now() - 3600e3),
-                    endTime: formatTimeAsiaBangkok(),
+                    startTime: formatTimeAsiaBangkok(
+                        Date.now() - timeLimitSeconds * 1e3,
+                    ),
+                    endTime: formatTimeAsiaBangkok(Date.now() + 600e3),
                     employeeNoString: door.employeeNo,
                 },
             })

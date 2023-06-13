@@ -67,7 +67,7 @@ Content-Type: application/json
 Get logs:
 
 ```http
-GET http://localhost:3310/access/log
+GET http://localhost:3310/access/log?timeLimitSeconds=3600
 Authorization: Bearer {{$dotenv ID_TOKEN}}
 ```
 
@@ -113,8 +113,20 @@ GET http://localhost:3310/stats-public
     docker compose up -d
     ```
 
+11. Setup systemd:
+
+    ```sh
+    sudo systemctl link ./garden-gate-updater.service
+    sudo systemctl daemon-reload
+    sudo systemctl start garden-gate-updater
+    sudo systemctl status garden-gate-updater
+
+    # View logs
+    sudo journalctl -u garden-gate-updater -f
+    ```
+
 ## Deploying new code
 
 ```sh
-docker compose pull && docker compose up -d
+./scripts/update.sh
 ```

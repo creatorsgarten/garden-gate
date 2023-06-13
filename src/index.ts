@@ -149,21 +149,31 @@ const app = new Elysia()
                         }),
                     },
                 )
-                .get('/access/log', async () => {
-                    const logs = await getLogs()
-                    return {
-                        errors: logs.errors.map((e) => {
-                            return { door: e.door.name, error: e.error }
+                .get(
+                    '/access/log',
+                    async ({ query }) => {
+                        const timeLimitSeconds =
+                            +query.timeLimitSeconds! || 3600
+                        const logs = await getLogs(timeLimitSeconds)
+                        return {
+                            errors: logs.errors.map((e) => {
+                                return { door: e.door.name, error: e.error }
+                            }),
+                            entries: logs.data.map((e) => {
+                                return {
+                                    door: e.door.name,
+                                    accessKey: e.event.cardNo,
+                                    usedAt: new Date(e.event.time).toJSON(),
+                                }
+                            }),
+                        }
+                    },
+                    {
+                        query: t.Object({
+                            timeLimitSeconds: t.Optional(t.String()),
                         }),
-                        entries: logs.data.map((e) => {
-                            return {
-                                door: e.door.name,
-                                accessKey: e.event.cardNo,
-                                usedAt: new Date(e.event.time).toJSON(),
-                            }
-                        }),
-                    }
-                }),
+                    },
+                ),
     )
     .listen(+Bun.env.PORT! || 3310)
 
