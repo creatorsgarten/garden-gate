@@ -103,7 +103,7 @@ export async function getCards() {
                 throw error
             }
 
-            return data.CardInfoSearch.CardInfo.map((card) => ({
+            return (data?.CardInfoSearch?.CardInfo || []).map((card) => ({
                 door,
                 card,
             }))
