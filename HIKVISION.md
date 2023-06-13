@@ -21,26 +21,39 @@ Content-Type: application/json
 
 ```json
 {
-  "CardInfoSearch": {
-    "searchID": "fab02d83-4ad8-4a61-a931-305ce0ae60d1",
-    "responseStatusStrg": "OK",
-    "numOfMatches": 1,
-    "totalMatches": 1,
-    "CardInfo": [
-      {
-        "employeeNo": "100054",
-        "cardNo": "tmp001",
-        "leaderCard": "",
-        "cardType": "normalCard"
-      }
-    ]
-  }
+    "CardInfoSearch": {
+        "searchID": "fab02d83-4ad8-4a61-a931-305ce0ae60d1",
+        "responseStatusStrg": "OK",
+        "numOfMatches": 1,
+        "totalMatches": 1,
+        "CardInfo": [
+            {
+                "employeeNo": "100054",
+                "cardNo": "tmp001",
+                "leaderCard": "",
+                "cardType": "normalCard"
+            }
+        ]
+    }
+}
+```
+
+When no card is registered, the `CardInfo` array will be missing.
+
+```json
+{
+    "CardInfoSearch": {
+        "searchID": "4ef69650-96f2-41e8-87d5-282d7f73e45b",
+        "responseStatusStrg": "NO MATCH",
+        "numOfMatches": 0,
+        "totalMatches": 0
+    }
 }
 ```
 
 ## Add card
 
-- `cardNo` is case senstitive, only allow alpha-numeric characters and hyphen, max 20 chars. For an algorithm to generate a card number, see [`generateCardNo()`](./generateCardNo.js).
+-   `cardNo` is case senstitive, only allow alpha-numeric characters and hyphen, max 20 chars. For an algorithm to generate a card number, see [`generateCardNo()`](./generateCardNo.js).
 
 ```http
 POST http://{{$dotenv HIKVISION_IP}}/ISAPI/AccessControl/CardInfo/Record?format=json
@@ -58,9 +71,9 @@ Content-Type: application/json
 
 ```json
 {
-  "statusCode": 1,
-  "statusString": "OK",
-  "subStatusCode": "ok"
+    "statusCode": 1,
+    "statusString": "OK",
+    "subStatusCode": "ok"
 }
 ```
 
@@ -80,9 +93,9 @@ Content-Type: application/json
 
 ```json
 {
-  "statusCode": 1,
-  "statusString": "OK",
-  "subStatusCode": "ok"
+    "statusCode": 1,
+    "statusString": "OK",
+    "subStatusCode": "ok"
 }
 ```
 

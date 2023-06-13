@@ -57,7 +57,18 @@ POST http://localhost:3310/access/generate
 Authorization: Bearer {{$dotenv ID_TOKEN}}
 Content-Type: application/json
 
-{"accessId":"{{$guid}}"}
+{
+    "accessId": "{{$guid}}",
+    "userId": "user01",
+    "prefix": "name"
+}
+```
+
+Get logs:
+
+```http
+GET http://localhost:3310/access/log
+Authorization: Bearer {{$dotenv ID_TOKEN}}
 ```
 
 Get public stats:

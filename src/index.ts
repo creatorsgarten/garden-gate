@@ -7,6 +7,7 @@ import {
     deleteTimedAccessCard,
     getCards,
     getDoorStats,
+    getLogs,
 } from './access'
 import { createCardNumber } from './createCardNumber'
 
@@ -97,19 +98,20 @@ const app = new Elysia()
             },
         },
         (app) =>
-            app.post(
-                '/access/generate',
-                async ({ body: { accessId, prefix, userId } }) => {
-                    const cardNo = createCardNumber(prefix)
-                    const timeoutIn = 1000 * 60 * CARD_VALIDITY_IN_MINUTES
-                    const createdAt = new Date()
-                    const expiresAt = new Date(Date.now() + timeoutIn)
+            app
+                .post(
+                    '/access/generate',
+                    async ({ body: { accessId, prefix, userId } }) => {
+                        const cardNo = createCardNumber(prefix)
+                        const timeoutIn = 1000 * 60 * CARD_VALIDITY_IN_MINUTES
+                        const createdAt = new Date()
+                        const expiresAt = new Date(Date.now() + timeoutIn)
 
-                    // We must first insert the card into the database before creating it in Hikvision.
-                    // Otherwise, there may be a race condition in which a cleanup worker run between
-                    // the database insertion and the Hikvision creation.
-                    db.query(
-                        `INSERT INTO timed_access_cards (
+                        // We must first insert the card into the database before creating it in Hikvision.
+                        // Otherwise, there may be a race condition in which a cleanup worker run between
+                        // the database insertion and the Hikvision creation.
+                        db.query(
+                            `INSERT INTO timed_access_cards (
                             card_no,
                             access_id,
                             user_id,
@@ -122,31 +124,46 @@ const app = new Elysia()
                             $createdAt,
                             $expiresAt
                         )`,
-                    ).all({
-                        $cardNo: cardNo,
-                        $accessId: accessId,
-                        $userId: userId,
-                        $createdAt: createdAt.toISOString(),
-                        $expiresAt: expiresAt.toISOString(),
-                    })
+                        ).all({
+                            $cardNo: cardNo,
+                            $accessId: accessId,
+                            $userId: userId,
+                            $createdAt: createdAt.toISOString(),
+                            $expiresAt: expiresAt.toISOString(),
+                        })
 
-                    await createTimedAccessCard(cardNo)
-                    console.log(`created: ${cardNo}`)
+                        await createTimedAccessCard(cardNo)
+                        console.log(`created: ${cardNo}`)
 
+                        return {
+                            accessKey: cardNo,
+                            createdAt,
+                            expiresAt,
+                        }
+                    },
+                    {
+                        body: t.Object({
+                            accessId: t.String(),
+                            userId: t.String(),
+                            prefix: t.String({ pattern: '^[a-zA-Z]{0,10}$' }),
+                        }),
+                    },
+                )
+                .get('/access/log', async () => {
+                    const logs = await getLogs()
                     return {
-                        accessKey: cardNo,
-                        createdAt,
-                        expiresAt,
+                        errors: logs.errors.map((e) => {
+                            return { door: e.door.name, error: e.error }
+                        }),
+                        entries: logs.data.map((e) => {
+                            return {
+                                door: e.door.name,
+                                accessKey: e.event.cardNo,
+                                usedAt: new Date(e.event.time).toJSON(),
+                            }
+                        }),
                     }
-                },
-                {
-                    body: t.Object({
-                        accessId: t.String(),
-                        userId: t.String(),
-                        prefix: t.String({ pattern: '^[a-zA-Z]{0,10}$' }),
-                    }),
-                },
-            ),
+                }),
     )
     .listen(+Bun.env.PORT! || 3310)
 

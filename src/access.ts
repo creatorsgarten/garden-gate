@@ -103,7 +103,7 @@ export async function getCards() {
                 throw error
             }
 
-            return (data?.CardInfoSearch?.CardInfo || []).map((card) => ({
+            return (data.CardInfoSearch.CardInfo || []).map((card) => ({
                 door,
                 card,
             }))
@@ -135,8 +135,52 @@ export async function getDoorStats() {
 
             return {
                 name: door.name,
-                count: data.CardInfoSearch.CardInfo.length,
+                count: (data.CardInfoSearch.CardInfo || []).length,
             }
         }),
     )
+}
+
+function formatTimeAsiaBangkok(time = Date.now()) {
+    return new Date(time + 7 * 3600e3)
+        .toISOString()
+        .replace(/\.\d+Z$/, '+07:00')
+}
+
+export async function getLogs() {
+    const perDoor = await Promise.all(
+        doors.map(async (door) => {
+            const { ISAPI } = createDoorClient(door)
+            const { data, error } = await ISAPI.AccessControl.AcsEvent.post({
+                $query: {
+                    format: 'json',
+                },
+                AcsEventCond: {
+                    searchID: crypto.randomUUID(),
+                    searchResultPosition: 0,
+                    maxResults: 2000,
+                    major: 0,
+                    minor: 0,
+                    startTime: formatTimeAsiaBangkok(Date.now() - 3600e3),
+                    endTime: formatTimeAsiaBangkok(),
+                    employeeNoString: door.employeeNo,
+                },
+            })
+            if (error) {
+                return { door, error }
+            }
+            return { door, data }
+        }),
+    )
+    const data = perDoor.flatMap(({ door, data }) => {
+        if (!data) return []
+        return (data.AcsEvent.InfoList || []).map((event) => {
+            return { door, event }
+        })
+    })
+    const errors = perDoor.flatMap(({ door, error }) => {
+        if (!error) return []
+        return { door, error }
+    })
+    return { data, errors }
 }

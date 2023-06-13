@@ -186,7 +186,7 @@ const simulator = new Elysia()
                                 responseStatusStrg: 'OK',
                                 numOfMatches: found.length,
                                 totalMatches: found.length,
-                                CardInfo: found,
+                                CardInfo: undefinedIfEmpty(found),
                             },
                         }
                     },
@@ -311,7 +311,7 @@ const simulator = new Elysia()
                                 totalMatches: matched.length,
                                 responseStatusStrg: 'OK',
                                 numOfMatches: matched.length,
-                                InfoList: matched,
+                                InfoList: undefinedIfEmpty(matched),
                             },
                         }
                     },
@@ -320,7 +320,7 @@ const simulator = new Elysia()
                             AcsEventCond: t.Object({
                                 searchID: t.String({
                                     pattern:
-                                        '^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+                                        '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
                                 }),
                                 searchResultPosition: t.Number(),
                                 maxResults: t.Number(),
@@ -343,6 +343,10 @@ const simulator = new Elysia()
                 ),
     )
     .listen(3331)
+
+function undefinedIfEmpty<T>(array: T[]): T[] | undefined {
+    return array.length === 0 ? undefined : array
+}
 
 export type Simuator = typeof simulator
 
