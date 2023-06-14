@@ -34,16 +34,17 @@ interface TimedAccessCard {
 
 setInterval(async () => {
     await cleanup()
-}, 15000)
+}, 15000) // 15 seconds
 
 async function cleanup(log = false) {
     // Delete the timed access card when expired.
-    //   1. Query the active cards from Hikvision.
+    //   1. Query the active cards, and logs from Hikvision.
     //   2. For each active card:
     //       1. Check if it exists in the database. If not, delete it from Hikvision.
     //       2. If it exists in the database, check if it has expired. If so, delete it from Hikvision and the database.
+    //       3. If not expired and card has been used in any door, then it's safe to remove that card from Hikvision
 
-    const activeCards = await getCards()
+    const [activeCards, doorLogs] = await Promise.all([getCards(), getLogs(3600)])
     for (const { door, card } of activeCards) {
         const timedCard = db
             .query(`SELECT * FROM timed_access_cards WHERE card_no = $cardNo`)
@@ -63,6 +64,17 @@ async function cleanup(log = false) {
             db.query(
                 `DELETE FROM timed_access_cards WHERE card_no = $cardNo`,
             ).run({ $cardNo: card.cardNo })
+            continue
+        }
+        if (doorLogs.data.find(log => log.event.cardNo === card.cardNo && log.door.name === log.door.name)) {
+            console.log(
+                `[cleanup] Card "${card.cardNo}" has already been used at door "${door.name}". Deleting.`,
+            )
+            await deleteTimedAccessCard(door, card.cardNo)
+            db.query(
+                `DELETE FROM timed_access_cards WHERE card_no = $cardNo`,
+            ).run({ $cardNo: card.cardNo })
+            continue
         }
         if (log) {
             console.log(
