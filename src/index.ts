@@ -1,5 +1,6 @@
 import { Elysia, t } from 'elysia'
 import { Database } from 'bun:sqlite'
+import fs from 'fs'
 import { APP_VERSION, CARD_VALIDITY_IN_MINUTES } from './constants'
 import { verifyRequestAuthenticity } from './verify'
 import {
@@ -11,6 +12,7 @@ import {
 } from './access'
 import { createCardNumber } from './createCardNumber'
 
+if (!fs.existsSync('.data')) await fs.promises.mkdir('.data')
 const db = new Database('.data/gardengate.sqlite')
 
 // Create a table for timed_access_cards
@@ -118,6 +120,12 @@ const app = new Elysia()
                         const timeoutIn = 1000 * 60 * CARD_VALIDITY_IN_MINUTES
                         const createdAt = new Date()
                         const expiresAt = new Date(Date.now() + timeoutIn)
+
+                        // Before generating a new one, we have to make sure to revoke any existing active card
+                        // related to userId first before creating a new one.
+                        const userCards = db
+                            .query(`SELECT * FROM timed_access_cards WHERE user_id = $user_id`)
+                            .get({ $user_id: userId })
 
                         // We must first insert the card into the database before creating it in Hikvision.
                         // Otherwise, there may be a race condition in which a cleanup worker run between
