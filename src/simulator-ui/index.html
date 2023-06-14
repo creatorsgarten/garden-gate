@@ -155,7 +155,9 @@
                     log: null,
                     cardNumber: '',
                     async refreshCards() {
-                        const response = await fetch('/simulator/cards')
+                        const response = await fetch(
+                            '/simulator/cards?t=' + Date.now(),
+                        )
                         const cards = await response.json()
                         if (!Array.isArray(cards)) {
                             console.error(
@@ -167,7 +169,9 @@
                         this.cards = cards
                     },
                     async refreshLog() {
-                        const response = await fetch('/simulator/log')
+                        const response = await fetch(
+                            '/simulator/log?t=' + Date.now(),
+                        )
                         const log = await response.json()
                         if (!Array.isArray(log)) {
                             console.error(
