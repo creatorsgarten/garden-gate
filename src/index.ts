@@ -11,6 +11,9 @@ import {
     getLogs,
 } from './access'
 import { createCardNumber } from './createCardNumber'
+import { GATE_CONFIG } from './constants'
+
+const { doors } = GATE_CONFIG
 
 if (!fs.existsSync('.data')) await fs.promises.mkdir('.data')
 const db = new Database('.data/gardengate.sqlite')
@@ -125,7 +128,22 @@ const app = new Elysia()
                         // related to userId first before creating a new one.
                         const userCards = db
                             .query(`SELECT * FROM timed_access_cards WHERE user_id = $user_id`)
-                            .get({ $user_id: userId })
+                            .all({ $user_id: userId }) as TimedAccessCard[]
+                        
+                        if (userCards.length > 0) {
+                            console.log(
+                                `[cleanup] Removing ${userCards.length} cards owned by user ${userId} before granting a new card`
+                            )
+
+                            for await (const card of userCards) {
+                                await Promise.allSettled(doors.map(async door => {
+                                    await deleteTimedAccessCard(door, card.card_no)
+                                    db.query(
+                                        `DELETE FROM timed_access_cards WHERE card_no = $cardNo`,
+                                    ).run({ $cardNo: card.card_no })
+                                }))
+                            }
+                        }
 
                         // We must first insert the card into the database before creating it in Hikvision.
                         // Otherwise, there may be a race condition in which a cleanup worker run between
