@@ -1,4 +1,5 @@
 import { Elysia, t, type Context } from 'elysia'
+import { staticPlugin } from '@elysiajs/static'
 import {
     DIGEST,
     parseAuthorizationHeader,
@@ -95,6 +96,8 @@ const simulator = new Elysia()
             [
                 'This is a simulator for a Hikvision door access terminal.',
                 '',
+                'Access the UI at /ui/index.html',
+                '',
                 'Currently registered cards:',
                 ...Array.from(cards.values()).map((card) =>
                     JSON.stringify(card),
@@ -116,7 +119,7 @@ const simulator = new Elysia()
         '/simulator/access',
         async ({ body: { cardNo } }) => {
             const card = cards.get(cardNo)
-            if (!card) return badRequest(`card ${cardNo} not found`)
+            if (!card) return { ok: false, message: 'Card not found' }
             log.push({
                 major: 5,
                 minor: 1,
@@ -134,6 +137,9 @@ const simulator = new Elysia()
                 userType: 'normal',
                 currentVerifyMode: 'cardOrFaceOrFp',
             })
+            if (log.length > 1000) {
+                log.shift()
+            }
             return { ok: true }
         },
         {
@@ -142,6 +148,12 @@ const simulator = new Elysia()
             }),
         },
     )
+    .get('/simulator/cards', async () => {
+        return Array.from(cards.values())
+    })
+    .get('/simulator/log', async () => {
+        return log
+    })
     .group(
         '/ISAPI',
         {
@@ -342,6 +354,7 @@ const simulator = new Elysia()
                     },
                 ),
     )
+    .use(staticPlugin({ assets: 'src/simulator-ui', prefix: '/ui' }))
     .listen(3331)
 
 function undefinedIfEmpty<T>(array: T[]): T[] | undefined {

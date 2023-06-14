@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Door Access Simulator</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+            crossorigin="anonymous"
+        />
+    </head>
+    <body>
+        <div class="container py-4" x-data="door">
+            <h1>Door Access Simulator</h1>
+            <div class="row mt-4">
+                <div class="col-12 col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-header">Enabled cards</div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Card number</th>
+                                        <th>Employee</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="card in cards">
+                                        <tr>
+                                            <td>
+                                                <code
+                                                    x-text="card.cardNo"
+                                                    @click="cardNumber = card.cardNo"
+                                                ></code>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    x-text="card.employeeNo"
+                                                ></span>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="!cards">
+                                        <tr>
+                                            <td colspan="2">…</td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="cards && !cards.length">
+                                        <tr>
+                                            <td colspan="2">
+                                                <em>No active cards</em>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-header">Access</div>
+                        <div class="card-body">
+                            <form @submit="submit">
+                                <h5 class="card-title">Enter card number</h5>
+                                <p class="card-text">
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Card number"
+                                        x-model="cardNumber"
+                                    />
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-primary"
+                                    >
+                                        Submit
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        @click="scan"
+                                    >
+                                        Scan QR code
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-header">Access log</div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Log entry</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="entry in log">
+                                        <tr>
+                                            <td>
+                                                <code
+                                                    x-text="entry.cardNo"
+                                                ></code
+                                                ><br />
+                                                <small>
+                                                    <strong
+                                                        x-text="entry.employeeNoString"
+                                                    ></strong>
+                                                    @
+                                                    <span
+                                                        x-text="entry.time"
+                                                    ></span>
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="!log">
+                                        <tr>
+                                            <td>…</td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="log && !log.length">
+                                        <tr>
+                                            <td><em>No log entries</em></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.2/dist/cdn.min.js"
+            defer
+        ></script>
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('door', () => ({
+                    cards: null,
+                    log: null,
+                    cardNumber: '',
+                    async refreshCards() {
+                        const response = await fetch('/simulator/cards')
+                        const cards = await response.json()
+                        if (!Array.isArray(cards)) {
+                            console.error(
+                                '/simulator/cards returned invalid response',
+                                cards,
+                            )
+                            return
+                        }
+                        this.cards = cards
+                    },
+                    async refreshLog() {
+                        const response = await fetch('/simulator/log')
+                        const log = await response.json()
+                        if (!Array.isArray(log)) {
+                            console.error(
+                                '/simulator/log returned invalid response',
+                                log,
+                            )
+                            return
+                        }
+                        this.log = log
+                    },
+                    async submit(event) {
+                        event?.preventDefault()
+                        const response = await fetch('/simulator/access', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ cardNo: this.cardNumber }),
+                        })
+                        const result = await response.json()
+                        if (result.ok) {
+                            this.cardNumber = ''
+                            alert('Access granted')
+                            this.refreshLog()
+                        } else {
+                            console.error('Unable to grant access', result)
+                            alert(
+                                'Unable to grant access: ' +
+                                    JSON.stringify(result),
+                            )
+                        }
+                    },
+                    async scan() {
+                        this.cardNumber = await new Promise((resolve) => {
+                            const w = window.open(
+                                'https://qr.spacet.me/?action=scan&fit=cover&delay=100&post=opener',
+                                '_blank',
+                                'width=320,height=320,toolbar=no',
+                            )
+                            const onMessage = (e) => {
+                                if (e.source === w && e.data.text) {
+                                    resolve(e.data.text)
+                                    w.close()
+                                    removeEventListener('message', onMessage)
+                                }
+                            }
+                            addEventListener('message', onMessage)
+                        })
+                        this.submit()
+                    },
+                    init() {
+                        setInterval(() => this.refreshCards(), 10000)
+                        setInterval(() => this.refreshLog(), 10000)
+                        this.refreshCards()
+                        this.refreshLog()
+                    },
+                }))
+            })
+        </script>
+    </body>
+</html>
