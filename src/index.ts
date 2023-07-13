@@ -76,9 +76,6 @@ async function cleanup(log = false) {
                 `[cleanup] Card "${card.cardNo}" has already been used at door "${door.name}". Deleting.`,
             )
             await deleteTimedAccessCard(door, card.cardNo)
-            db.query(
-                `DELETE FROM timed_access_cards WHERE card_no = $cardNo`,
-            ).run({ $cardNo: card.cardNo })
             continue
         }
         if (log) {
