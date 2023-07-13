@@ -71,7 +71,7 @@ async function cleanup(log = false) {
             ).run({ $cardNo: card.cardNo })
             continue
         }
-        if (doorLogs.data.find(log => log.event.cardNo === card.cardNo && log.door.name === log.door.name)) {
+        if (doorLogs.data.find(log => log.event.cardNo === card.cardNo && log.door.name === door.name)) {
             console.log(
                 `[cleanup] Card "${card.cardNo}" has already been used at door "${door.name}". Deleting.`,
             )
