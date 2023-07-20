@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { GateConfig } from './@types/GateConfig'
+import { GateConfig } from './@types/GateConfig.js'
 
 export const GATE_CONFIG = getGateConfig()
 

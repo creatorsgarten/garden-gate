@@ -1,3 +1,4 @@
+import '@bogeychan/elysia-polyfills/node/index.js'
 import { Elysia, t, type Context } from 'elysia'
 import { staticPlugin } from '@elysiajs/static'
 import {

@@ -1,29 +1,33 @@
-FROM debian:11.6-slim as builder
-
+FROM node:18-alpine AS deps-prod
 WORKDIR /app
 
-RUN apt update
-RUN apt install curl unzip -y
-
-RUN curl https://bun.sh/install | bash
-
-COPY package.json .
-COPY bun.lockb .
-
-RUN /root/.bun/bin/bun install
+COPY package.json *pnpm-lock.yaml ./
+RUN npx pnpm -r i --frozen-lockfile --prod
 
 # ? -------------------------
-FROM gcr.io/distroless/base-debian11
+
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+COPY package.json *pnpm-lock.yaml ./
+RUN npx pnpm -r i --frozen-lockfile
+
+COPY tsconfig.json ./
+COPY src ./src
+
+RUN npx pnpm build
+
+# ? -------------------------
+
+FROM node:18-alpine AS runner
 
 WORKDIR /app
 
-COPY --from=builder /root/.bun/bin/bun bun
-COPY --from=builder /app/node_modules node_modules
+COPY --from=deps-prod /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
 
-COPY src src
-
-ENV ENV production
-CMD ["./bun", "src/index.ts"]
+ENV NODE_ENV production
+CMD ["dist/index.js"]
 
 ENV PORT 3000
 EXPOSE 3000

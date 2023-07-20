@@ -1,4 +1,4 @@
-import { GATE_CONFIG } from './constants'
+import { GATE_CONFIG } from './constants.js'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 const issuer = 'https://accounts.google.com'

@@ -1,3 +1,4 @@
+import '@bogeychan/elysia-polyfills/node/index.js'
 import { Elysia, t } from 'elysia'
 import Database from 'better-sqlite3'
 import fs from 'fs'
@@ -8,10 +9,10 @@ import {
     getCards,
     getDoorStats,
     getLogs,
-} from './access'
-import { APP_VERSION, CARD_VALIDITY_IN_MINUTES, GATE_CONFIG } from './constants'
-import { createCardNumber } from './createCardNumber'
-import { verifyRequestAuthenticity } from './verify'
+} from './access.js'
+import { APP_VERSION, CARD_VALIDITY_IN_MINUTES, GATE_CONFIG } from './constants.js'
+import { createCardNumber } from './createCardNumber.js'
+import { verifyRequestAuthenticity } from './verify.js'
 
 const { doors } = GATE_CONFIG
 

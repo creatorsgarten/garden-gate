@@ -1,8 +1,9 @@
 import { edenTreaty } from '@elysiajs/eden'
-import type { Simuator } from './simulator'
-import { GATE_CONFIG } from './constants'
 import DigestClient from 'digest-fetch'
-import { GateConfig } from './@types/GateConfig'
+
+import { GATE_CONFIG } from './constants.js'
+import { GateConfig } from './@types/GateConfig.js'
+import type { Simuator } from './simulator.js'
 
 type Door = GateConfig['doors'][number]
 
