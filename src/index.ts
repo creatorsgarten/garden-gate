@@ -1,8 +1,7 @@
 import { Elysia, t } from 'elysia'
-import { Database } from 'bun:sqlite'
+import Database from 'better-sqlite3'
 import fs from 'fs'
-import { APP_VERSION, CARD_VALIDITY_IN_MINUTES } from './constants'
-import { verifyRequestAuthenticity } from './verify'
+
 import {
     createTimedAccessCard,
     deleteTimedAccessCard,
@@ -10,8 +9,9 @@ import {
     getDoorStats,
     getLogs,
 } from './access'
+import { APP_VERSION, CARD_VALIDITY_IN_MINUTES, GATE_CONFIG } from './constants'
 import { createCardNumber } from './createCardNumber'
-import { GATE_CONFIG } from './constants'
+import { verifyRequestAuthenticity } from './verify'
 
 const { doors } = GATE_CONFIG
 
@@ -19,7 +19,7 @@ if (!fs.existsSync('.data')) await fs.promises.mkdir('.data')
 const db = new Database('.data/gardengate.sqlite')
 
 // Create a table for timed_access_cards
-db.query(
+db.prepare(
     `CREATE TABLE IF NOT EXISTS timed_access_cards (
         card_no TEXT PRIMARY KEY,
         access_id TEXT NOT NULL,
@@ -49,10 +49,13 @@ async function cleanup(log = false) {
     //       2. If it exists in the database, check if it has expired. If so, delete it from Hikvision and the database.
     //       3. If not expired and card has been used in any door, then it's safe to remove that card from Hikvision
 
-    const [activeCards, doorLogs] = await Promise.all([getCards(), getLogs(3600)])
+    const [activeCards, doorLogs] = await Promise.all([
+        getCards(),
+        getLogs(3600),
+    ])
     for (const { door, card } of activeCards) {
         const timedCard = db
-            .query(`SELECT * FROM timed_access_cards WHERE card_no = $cardNo`)
+            .prepare(`SELECT * FROM timed_access_cards WHERE card_no = $cardNo`)
             .get({ $cardNo: card.cardNo }) as TimedAccessCard | null
         if (!timedCard) {
             console.log(
@@ -66,12 +69,18 @@ async function cleanup(log = false) {
                 `[cleanup] Card "${card.cardNo}" in door "${door.name}" has expired. Deleting.`,
             )
             await deleteTimedAccessCard(door, card.cardNo)
-            db.query(
+            db.prepare(
                 `DELETE FROM timed_access_cards WHERE card_no = $cardNo`,
             ).run({ $cardNo: card.cardNo })
             continue
         }
-        if (doorLogs.data.find(log => log.event.cardNo === card.cardNo && log.door.name === door.name)) {
+        if (
+            doorLogs.data.find(
+                (log) =>
+                    log.event.cardNo === card.cardNo &&
+                    log.door.name === door.name,
+            )
+        ) {
             console.log(
                 `[cleanup] Card "${card.cardNo}" has already been used at door "${door.name}". Deleting.`,
             )
@@ -124,28 +133,35 @@ const app = new Elysia()
                         // Before generating a new one, we have to make sure to revoke any existing active card
                         // related to userId first before creating a new one.
                         const userCards = db
-                            .query(`SELECT * FROM timed_access_cards WHERE user_id = $user_id`)
+                            .prepare(
+                                `SELECT * FROM timed_access_cards WHERE user_id = $user_id`,
+                            )
                             .all({ $user_id: userId }) as TimedAccessCard[]
-                        
+
                         if (userCards.length > 0) {
                             console.log(
-                                `[cleanup] Removing ${userCards.length} cards owned by user ${userId} before granting a new card`
+                                `[cleanup] Removing ${userCards.length} cards owned by user ${userId} before granting a new card`,
                             )
 
                             for await (const card of userCards) {
-                                await Promise.allSettled(doors.map(async door => {
-                                    await deleteTimedAccessCard(door, card.card_no)
-                                    db.query(
-                                        `DELETE FROM timed_access_cards WHERE card_no = $cardNo`,
-                                    ).run({ $cardNo: card.card_no })
-                                }))
+                                await Promise.allSettled(
+                                    doors.map(async (door) => {
+                                        await deleteTimedAccessCard(
+                                            door,
+                                            card.card_no,
+                                        )
+                                        db.prepare(
+                                            `DELETE FROM timed_access_cards WHERE card_no = $cardNo`,
+                                        ).run({ $cardNo: card.card_no })
+                                    }),
+                                )
                             }
                         }
 
                         // We must first insert the card into the database before creating it in Hikvision.
                         // Otherwise, there may be a race condition in which a cleanup worker run between
                         // the database insertion and the Hikvision creation.
-                        db.query(
+                        db.prepare(
                             `INSERT INTO timed_access_cards (
                             card_no,
                             access_id,

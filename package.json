@@ -12,6 +12,8 @@
   "dependencies": {
     "@elysiajs/eden": "0.5.6",
     "@elysiajs/static": "^0.5.3",
+    "@types/better-sqlite3": "^7.6.4",
+    "better-sqlite3": "^8.5.0",
     "bson-objectid": "^2.0.4",
     "digest-fetch": "^3.0.4",
     "elysia": "^0.5.17",
@@ -22,8 +24,10 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@tsconfig/node18": "^18.2.0",
     "@types/jsonwebtoken": "^9.0.2",
     "bun-types": "^0.6.7",
-    "prettier": "^2.8.8"
+    "prettier": "^2.8.8",
+    "typescript": "^5.1.6"
   }
 }
