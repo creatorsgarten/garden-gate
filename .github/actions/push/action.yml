@@ -1,0 +1,19 @@
+name: build
+
+inputs:
+  label:
+    description: Deployment label
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: docker/build-push-action@v4
+        with:
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ghcr.io/${{ github.repository }}:${{ inputs.label }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            APP_VERSION=${{ github.sha }}

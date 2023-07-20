@@ -3,6 +3,8 @@ name: Deployments
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -27,14 +29,12 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: build
-        uses: docker/build-push-action@v4
+        if: github.event_name == 'push'
+        uses: ./.github/actions/push
         with:
-          context: .
-          file: Dockerfile
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/${{ github.repository }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            APP_VERSION=${{ github.sha }}
+          label: latest
+      - name: build
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/push
+        with:
+          label: pr-${{ github.event.pull_request.number }}
