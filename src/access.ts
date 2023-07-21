@@ -18,10 +18,10 @@ class CardCreationError extends Error {
 
 function createDoorClient(door: GateConfig['doors'][number]) {
     const client = new DigestClient(door.username, door.password)
-
-    return edenTreaty<Simuator>(door.host, {
+    const treaty = edenTreaty<Simuator>(door.host, {
         fetcher: client.fetch.bind(client) as any,
     })
+    return treaty
 }
 
 /** Create a timed access card. */

@@ -46,15 +46,18 @@ dependencies:
     version: 3.21.4
 
 devDependencies:
-  '@tsconfig/node18':
-    specifier: ^18.2.0
-    version: 18.2.0
+  '@tsconfig/node20':
+    specifier: ^20.1.0
+    version: 20.1.0
   '@types/better-sqlite3':
     specifier: ^7.6.4
     version: 7.6.4
   '@types/jsonwebtoken':
     specifier: ^9.0.2
     version: 9.0.2
+  '@types/node':
+    specifier: ^20.4.2
+    version: 20.4.2
   bun-types:
     specifier: ^0.6.14
     version: 0.6.14
@@ -402,8 +405,8 @@ packages:
       path-browserify: 1.0.1
     dev: false
 
-  /@tsconfig/node18@18.2.0:
-    resolution: {integrity: sha512-yhxwIlFVSVcMym3O31HoMnRXpoenmpIxcj4Yoes2DUpe+xCJnA7ECQP1Vw889V0jTt/2nzvpLQ/UuMYCd3JPIg==}
+  /@tsconfig/node20@20.1.0:
+    resolution: {integrity: sha512-7Yz1xDv3sot8+NwiYA8wkx60qr3Tr+soJwlqVQSkiEqqgYoNmMmqSPiYs1vMmTxneB3igHAD11dGOR2+BShzTA==}
     dev: true
 
   /@types/better-sqlite3@7.6.4:

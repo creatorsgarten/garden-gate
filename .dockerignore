@@ -1,0 +1,10 @@
+.dockerignore
+.gitignore
+**/.github/**
+**/node_modules/**
+**/dist/**
+**/qa/**
+.prettierrc
+config.example.json
+Dockerfile
+/*.md

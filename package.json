@@ -1,38 +1,39 @@
 {
-  "name": "garden-gate",
-  "version": "0.0.1",
-  "type": "module",
-  "description": "Door authorizer built with Elysia, running on a Raspberry Pi behind a trusted network.",
-  "main": "src/main.ts",
-  "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@bogeychan/elysia-polyfills": "^0.5.3",
-    "@elysiajs/eden": "0.5.6",
-    "@elysiajs/static": "^0.5.3",
-    "@sinclair/typebox": "^0.29.6",
-    "better-sqlite3": "^8.5.0",
-    "bson-objectid": "^2.0.4",
-    "digest-fetch": "^3.1.0",
-    "elysia": "^0.5.22",
-    "http-auth-utils": "^4.0.0",
-    "jose": "^4.14.4",
-    "jwt-promisify": "^1.1.7",
-    "node-fetch": "^3.3.1",
-    "zod": "^3.21.4"
-  },
-  "devDependencies": {
-    "@tsconfig/node18": "^18.2.0",
-    "@types/better-sqlite3": "^7.6.4",
-    "@types/jsonwebtoken": "^9.0.2",
-    "bun-types": "^0.6.14",
-    "prettier": "^3.0.0",
-    "tsup": "^7.1.0",
-    "typescript": "^5.1.6"
-  }
+    "name": "garden-gate",
+    "version": "0.0.1",
+    "type": "module",
+    "description": "Door authorizer built with Elysia, running on a Raspberry Pi behind a trusted network.",
+    "main": "src/main.ts",
+    "scripts": {
+        "build": "tsup src/index.ts src/simulator.ts --format esm --clean",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@bogeychan/elysia-polyfills": "^0.5.3",
+        "@elysiajs/eden": "0.5.6",
+        "@elysiajs/static": "^0.5.3",
+        "@sinclair/typebox": "^0.29.6",
+        "better-sqlite3": "^8.5.0",
+        "bson-objectid": "^2.0.4",
+        "digest-fetch": "^3.1.0",
+        "elysia": "^0.5.22",
+        "http-auth-utils": "^4.0.0",
+        "jose": "^4.14.4",
+        "jwt-promisify": "^1.1.7",
+        "node-fetch": "^3.3.1",
+        "zod": "^3.21.4"
+    },
+    "devDependencies": {
+        "@tsconfig/node20": "^20.1.0",
+        "@types/better-sqlite3": "^7.6.4",
+        "@types/jsonwebtoken": "^9.0.2",
+        "@types/node": "^20.4.2",
+        "bun-types": "^0.6.14",
+        "prettier": "^3.0.0",
+        "tsup": "^7.1.0",
+        "typescript": "^5.1.6"
+    }
 }

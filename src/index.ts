@@ -1,4 +1,4 @@
-import '@bogeychan/elysia-polyfills/node/index.js'
+import './elysia-polyfills'
 import { Elysia, t } from 'elysia'
 import Database from 'better-sqlite3'
 import fs from 'fs'
@@ -10,7 +10,11 @@ import {
     getDoorStats,
     getLogs,
 } from './access.js'
-import { APP_VERSION, CARD_VALIDITY_IN_MINUTES, GATE_CONFIG } from './constants.js'
+import {
+    APP_VERSION,
+    CARD_VALIDITY_IN_MINUTES,
+    GATE_CONFIG,
+} from './constants.js'
 import { createCardNumber } from './createCardNumber.js'
 import { verifyRequestAuthenticity } from './verify.js'
 
@@ -227,7 +231,7 @@ const app = new Elysia()
                     },
                 ),
     )
-    .listen(+Bun.env.PORT! || 3310)
+    .listen(+process.env.PORT! || 3310)
 
 console.log(
     `Garden gate [${APP_VERSION}] is running at ${app.server?.hostname}:${app.server?.port}`,
