@@ -7,15 +7,8 @@ on:
         branches: [main]
     workflow_dispatch:
 
-permissions:
-    packages: write
-
-concurrency:
-    group: deploy
-    cancel-in-progress: true
-
 jobs:
-    deploy:
+    test:
         runs-on: ubuntu-latest
         steps:
             - name: checkout
