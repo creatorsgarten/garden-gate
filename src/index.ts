@@ -2,6 +2,8 @@ import './elysia-polyfills'
 import { Elysia, t } from 'elysia'
 import Database from 'better-sqlite3'
 import fs from 'fs'
+import ObjectID from 'bson-objectid'
+import util from 'util'
 
 import {
     createTimedAccessCard,
@@ -19,6 +21,7 @@ import { createCardNumber } from './createCardNumber.js'
 import { verifyRequestAuthenticity } from './verify.js'
 
 const { doors } = GATE_CONFIG
+const errorLog: { _id: string; time: string; message: string }[] = []
 
 if (!fs.existsSync('.data')) await fs.promises.mkdir('.data')
 const db = new Database('.data/gardengate.sqlite')
@@ -106,6 +109,14 @@ await cleanup(true)
 const app = new Elysia()
     .onError(({ error }) => {
         console.error(error)
+        errorLog.push({
+            _id: new ObjectID().toHexString(),
+            time: new Date().toISOString(),
+            message: util.format(error),
+        })
+        if (errorLog.length > 1000) {
+            errorLog.splice(0, errorLog.length - 1000)
+        }
         if (error.cause) {
             console.error(error.cause)
             if ((error.cause as any).cause) {
@@ -243,7 +254,10 @@ const app = new Elysia()
                             timeLimitSeconds: t.Optional(t.String()),
                         }),
                     },
-                ),
+                )
+                .get('/error-logs', async () => {
+                    return errorLog
+                }),
     )
     .listen(+process.env.PORT! || 3310)
 
