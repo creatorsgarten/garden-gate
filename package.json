@@ -19,7 +19,7 @@
         "better-sqlite3": "^8.5.0",
         "bson-objectid": "^2.0.4",
         "digest-fetch": "^3.1.0",
-        "elysia": "^0.5.22",
+        "elysia": "^0.5.23",
         "http-auth-utils": "^4.0.0",
         "jose": "^4.14.4",
         "jwt-promisify": "^1.1.7",
@@ -31,9 +31,11 @@
         "@types/better-sqlite3": "^7.6.4",
         "@types/jsonwebtoken": "^9.0.2",
         "@types/node": "^20.4.2",
+        "axios": "^1.4.0",
         "bun-types": "^0.6.14",
         "prettier": "^3.0.0",
         "tsup": "^7.1.0",
-        "typescript": "^5.1.6"
+        "typescript": "^5.1.6",
+        "vitest": "^0.33.0"
     }
 }

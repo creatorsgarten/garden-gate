@@ -5,8 +5,15 @@
     "allowedAudiences": ["https://github.com/creatorsgarten/garden-gate"],
     "doors": [
         {
-            "name": "Simulator",
-            "host": "http://simulator:3331",
+            "name": "Simulator1",
+            "host": "http://simulator1:3331",
+            "username": "admin",
+            "password": "simulatorPassword",
+            "employeeNo": "642730"
+        },
+        {
+            "name": "Simulator2",
+            "host": "http://simulator2:3331",
             "username": "admin",
             "password": "simulatorPassword",
             "employeeNo": "642730"

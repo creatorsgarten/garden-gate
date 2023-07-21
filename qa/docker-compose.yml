@@ -6,10 +6,16 @@ services:
       - ./.data:/app/.data
     restart: unless-stopped
     ports:
-      - 127.0.0.1:9901:3000
-  simulator:
+      - 127.0.0.1:3000:3000
+  simulator1:
     image: garden-gate
     command: ["node", "dist/simulator.js"]
     restart: unless-stopped
     ports:
-      - 127.0.0.1:9902:3331
+      - 127.0.0.1:3331:3331
+  simulator2:
+    image: garden-gate
+    command: ["node", "dist/simulator.js"]
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:3332:3331
