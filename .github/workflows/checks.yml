@@ -41,7 +41,7 @@ jobs:
             - name: wait for port 3332
               run: pnpm wait-on http-get://localhost:3332 --timeout 30000
             - name: test
-              run: pnpm vitest qa/test.ts
+              run: pnpm vitest
             - name: logs
               run: cd qa && docker-compose logs
               if: always()
