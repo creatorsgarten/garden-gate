@@ -255,8 +255,11 @@ const app = new Elysia()
                         }),
                     },
                 )
-                .get('/error-logs', async () => {
+                .get('/error-log', async () => {
                     return errorLog
+                })
+                .post('/tester/simulate-error', async () => {
+                    throw new Error('Simulated error')
                 }),
     )
     .listen(+process.env.PORT! || 3310)

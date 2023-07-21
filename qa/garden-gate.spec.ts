@@ -93,3 +93,18 @@ test('cleans up the access after used', async () => {
     expect(await getActiveCards(door1)).not.toContain(data1.accessKey)
     expect(await getActiveCards(door2)).toContain(data1.accessKey)
 })
+
+test('error log', async () => {
+    await client.post(
+        '/tester/simulate-error',
+        {},
+        { validateStatus: () => true },
+    )
+    const { data } = await client.get('/error-log')
+    expect(data).toEqual(expect.any(Array))
+    expect(data).toContainEqual(
+        expect.objectContaining({
+            message: expect.stringContaining('Simulated error'),
+        }),
+    )
+})
