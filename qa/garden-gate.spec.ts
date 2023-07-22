@@ -42,12 +42,12 @@ async function cleanUp() {
     await client.post('/tester/cleanup')
 }
 
-test('status', async () => {
+test('GET / returns the server status', async () => {
     const { data } = await client.get('/')
     expect(data.status).toEqual(expect.any(String))
 })
 
-test('generates access', async () => {
+test('POST /access/generate generates an access card', async () => {
     const data = await createAccess({})
     expect(data.accessKey).toEqual(expect.any(String))
     expect(data.createdAt).toEqual(expect.any(String))
@@ -56,7 +56,7 @@ test('generates access', async () => {
     expect(await getActiveCards(door2)).toContain(data.accessKey)
 })
 
-test('cleans up after expired', async () => {
+test('An access card is cleaned up after expiry', async () => {
     const data = await createAccess({ overrideTimeout: 0.1 })
     expect(await getActiveCards(door1)).toContain(data.accessKey)
     expect(await getActiveCards(door2)).toContain(data.accessKey)
@@ -66,7 +66,7 @@ test('cleans up after expired', async () => {
     expect(await getActiveCards(door2)).not.toContain(data.accessKey)
 })
 
-test('allow multiple users', async () => {
+test('Each user has their own access card', async () => {
     const data1 = await createAccess({})
     const data2 = await createAccess({})
     expect(await getActiveCards(door1)).toContain(data1.accessKey)
@@ -75,7 +75,7 @@ test('allow multiple users', async () => {
     expect(await getActiveCards(door2)).toContain(data2.accessKey)
 })
 
-test('revokes previous access when generate card for new user', async () => {
+test('An older access card is revoked when a newer one is generated for the same user', async () => {
     const userId = ObjectID().toHexString()
     const data1 = await createAccess({ userId })
     expect(await getActiveCards(door1)).toContain(data1.accessKey)
@@ -84,7 +84,7 @@ test('revokes previous access when generate card for new user', async () => {
     expect(await getActiveCards(door2)).toContain(data2.accessKey)
 })
 
-test('cleans up the access after used', async () => {
+test('An access card is cleaned up once used', async () => {
     const userId = ObjectID().toHexString()
     const data1 = await createAccess({ userId })
     expect(await getActiveCards(door1)).toContain(data1.accessKey)
@@ -94,7 +94,7 @@ test('cleans up the access after used', async () => {
     expect(await getActiveCards(door2)).toContain(data1.accessKey)
 })
 
-test('error log', async () => {
+test('Error log can be queried', async () => {
     await client.post(
         '/tester/simulate-error',
         {},
