@@ -13,7 +13,7 @@
         },
         {
             "name": "Simulator2",
-            "host": "http://simulator2:3331",
+            "host": "http://simulator2:3332",
             "username": "admin",
             "password": "simulatorPassword",
             "employeeNo": "642730"

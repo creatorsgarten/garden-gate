@@ -36,19 +36,25 @@ To set up a development environment:
 
 8. Create an `.env` file and put in `ID_TOKEN=<id-token>`
 
-9. Run the simulator (in another terminal):
+9. Run the build script in watch mode:
 
     ```sh
-    bun src/simulator.ts
+    pnpm run build --watch
     ```
 
-10. Run the server:
+10. Run the simulator (in another terminal):
 
     ```sh
-    bun src/index.ts
+    node dist/simulator.js
     ```
 
-11. Use VS Code [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) to test the API by clicking the **Send Request** link in the code blocks below.
+11. Run the server:
+
+    ```sh
+    node dist/index.js
+    ```
+
+12. Use VS Code [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) to test the API by clicking the **Send Request** link in the code blocks below.
 
 Generate an access card:
 
@@ -75,4 +81,24 @@ Get public stats:
 
 ```http
 GET http://localhost:3310/stats-public
+```
+
+## Local development and testing
+
+In a terminal tab, run the build script:
+
+```sh
+pnpm run build --watch
+```
+
+In another terminal tab, run the test environment:
+
+```sh
+pnpm qa
+```
+
+In another terminal tab, run the tests:
+
+```sh
+pnpm test
 ```
