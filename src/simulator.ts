@@ -356,7 +356,7 @@ const simulator = new Elysia()
                 ),
     )
     .use(staticPlugin({ assets: 'src/simulator-ui', prefix: '/ui' }))
-    .listen(3331)
+    .listen(+process.env.PORT || 3331)
 
 function undefinedIfEmpty<T>(array: T[]): T[] | undefined {
     return array.length === 0 ? undefined : array
