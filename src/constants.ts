@@ -15,5 +15,9 @@ function getGateConfig(): GateConfig {
     // TODO: #1 validate the gate configuration.
     const config: GateConfig = JSON.parse(file)
 
+    if (process.env.GARDEN_GATE_ALLOW_TEST_TOKEN === '1') {
+        config.allowTestToken = true
+    }
+
     return config
 }

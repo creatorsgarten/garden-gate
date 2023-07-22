@@ -76,3 +76,23 @@ Get public stats:
 ```http
 GET http://localhost:3310/stats-public
 ```
+
+## Local development and testing
+
+In a terminal tab, run the build script:
+
+```sh
+pnpm run build --watch
+```
+
+In another terminal tab, run the test environment:
+
+```sh
+pnpm qa
+```
+
+In another terminal tab, run the tests:
+
+```sh
+pnpm test
+```

@@ -103,7 +103,13 @@ async function cleanup(log = false) {
     }
 }
 
-await cleanup(true)
+try {
+    await cleanup(true)
+} catch (error) {
+    console.error('Unable to cleanup on startup, gonna retry once more')
+    await new Promise((resolve) => setTimeout(resolve, 3000))
+    await cleanup(true)
+}
 
 // TODO: #1 expose the server only to allowed hostnames for security
 const app = new Elysia()

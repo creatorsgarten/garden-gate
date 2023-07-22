@@ -3,14 +3,14 @@ import axios, { AxiosInstance } from 'axios'
 import ObjectID from 'bson-objectid'
 
 const client = axios.create({
-    baseURL: 'http://localhost:3000/',
+    baseURL: 'http://127.0.0.1:3000/',
     headers: {
         Authorization: 'Bearer tester',
     },
 })
 
 const door1 = axios.create({
-    baseURL: 'http://localhost:3331/',
+    baseURL: 'http://127.0.0.1:3331/',
 })
 const door2 = axios.create({
     baseURL: 'http://localhost:3332/',
