@@ -10,7 +10,7 @@ export const CARD_VALIDITY_IN_MINUTES = 3
 
 function getGateConfig(): GateConfig {
     // TODO: #1 validate if the config file is present.
-    const file = fs.readFileSync('./config.json', 'utf-8')
+    const file = fs.readFileSync(process.env.GARDEN_GATE_CONFIG_PATH || './config.json', 'utf-8')
 
     // TODO: #1 validate the gate configuration.
     const config: GateConfig = JSON.parse(file)
