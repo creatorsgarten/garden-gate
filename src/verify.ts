@@ -1,4 +1,4 @@
-import { GATE_CONFIG } from './constants'
+import { GATE_CONFIG } from './constants.js'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 const issuer = 'https://accounts.google.com'
@@ -26,6 +26,9 @@ export async function verifyRequestAuthenticity(
     if (!match) throw new AuthorizationError('Invalid authorization header.')
 
     const [_, token] = match
+    if (GATE_CONFIG.allowTestToken && token === 'tester') {
+        return
+    }
     const result = await validate(token).catch((e) => {
         throw new AuthorizationError('Invalid authorization token.', e)
     })

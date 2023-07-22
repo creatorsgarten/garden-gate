@@ -1,0 +1,21 @@
+services:
+  gate:
+    image: garden-gate
+    volumes:
+      - ./config.ci.json:/app/config.json:ro
+      - ./.data:/app/.data
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:3000:3000
+  simulator1:
+    image: garden-gate
+    command: ["node", "dist/simulator.js"]
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:3331:3331
+  simulator2:
+    image: garden-gate
+    command: ["node", "dist/simulator.js"]
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:3332:3331

@@ -1,0 +1,23 @@
+{
+    "allowedEmails": [
+        "garden-gate@creatorsgarten-wiki.iam.gserviceaccount.com"
+    ],
+    "allowedAudiences": ["https://github.com/creatorsgarten/garden-gate"],
+    "doors": [
+        {
+            "name": "Simulator1",
+            "host": "http://simulator1:3331",
+            "username": "admin",
+            "password": "simulatorPassword",
+            "employeeNo": "642730"
+        },
+        {
+            "name": "Simulator2",
+            "host": "http://simulator2:3331",
+            "username": "admin",
+            "password": "simulatorPassword",
+            "employeeNo": "642730"
+        }
+    ],
+    "allowTestToken": true
+}

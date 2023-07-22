@@ -2,6 +2,7 @@ export interface GateConfig {
     doors: DoorConfig[]
     allowedEmails: string[]
     allowedAudiences: string[]
+    allowTestToken?: boolean
 }
 
 /**

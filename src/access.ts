@@ -1,8 +1,9 @@
 import { edenTreaty } from '@elysiajs/eden'
-import type { Simuator } from './simulator'
-import { GATE_CONFIG } from './constants'
 import DigestClient from 'digest-fetch'
-import { GateConfig } from './@types/GateConfig'
+
+import { GATE_CONFIG } from './constants.js'
+import { GateConfig } from './@types/GateConfig.js'
+import type { Simulator } from './simulator.js'
 
 type Door = GateConfig['doors'][number]
 
@@ -17,10 +18,10 @@ class CardCreationError extends Error {
 
 function createDoorClient(door: GateConfig['doors'][number]) {
     const client = new DigestClient(door.username, door.password)
-
-    return edenTreaty<Simuator>(door.host, {
+    const treaty = edenTreaty<Simulator>(door.host, {
         fetcher: client.fetch.bind(client) as any,
     })
+    return treaty
 }
 
 /** Create a timed access card. */

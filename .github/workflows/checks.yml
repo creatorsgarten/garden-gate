@@ -1,0 +1,47 @@
+name: Checks
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout
+              uses: actions/checkout@v3
+            - name: pnpm
+              uses: pnpm/action-setup@v2
+            - name: node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20
+                  cache: pnpm
+            - name: install
+              run: pnpm install
+            - name: buildx
+              uses: docker/setup-buildx-action@v2
+            - uses: docker/build-push-action@v4
+              with:
+                  load: true
+                  tags: garden-gate
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+                  build-args: |
+                      APP_VERSION=${{ github.sha }}
+            - name: run
+              run: cd qa && docker-compose up -d
+            - name: wait for port 3000
+              run: pnpm wait-on http-get://localhost:3000 --timeout 30000
+            - name: wait for port 3331
+              run: pnpm wait-on http-get://localhost:3331 --timeout 30000
+            - name: wait for port 3332
+              run: pnpm wait-on http-get://localhost:3332 --timeout 30000
+            - name: test
+              run: pnpm vitest
+            - name: logs
+              run: cd qa && docker-compose logs
+              if: always()
