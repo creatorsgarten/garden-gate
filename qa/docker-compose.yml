@@ -11,11 +11,15 @@ services:
     image: garden-gate
     command: ["node", "dist/simulator.js"]
     restart: unless-stopped
+    environment:
+      PORT: 3331
     ports:
       - 127.0.0.1:3331:3331
   simulator2:
     image: garden-gate
     command: ["node", "dist/simulator.js"]
     restart: unless-stopped
+    environment:
+      PORT: 3332
     ports:
-      - 127.0.0.1:3332:3331
+      - 127.0.0.1:3332:3332
