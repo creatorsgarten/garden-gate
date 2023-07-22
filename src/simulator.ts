@@ -1,4 +1,4 @@
-import '@bogeychan/elysia-polyfills/node/index.js'
+import './elysia-polyfills'
 import { Elysia, t, type Context } from 'elysia'
 import { staticPlugin } from '@elysiajs/static'
 import {
@@ -362,7 +362,7 @@ function undefinedIfEmpty<T>(array: T[]): T[] | undefined {
     return array.length === 0 ? undefined : array
 }
 
-export type Simuator = typeof simulator
+export type Simulator = typeof simulator
 
 console.log(
     `Simulator for a Hikvision door access terminal is running at ${simulator.server?.hostname}:${simulator.server?.port}`,

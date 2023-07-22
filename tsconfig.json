@@ -1,10 +1,10 @@
 {
-  "extends": "@tsconfig/node18/tsconfig.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "nodenext",
-    "lib": ["DOM", "ES2015"]
-  }
+    "extends": "@tsconfig/node20/tsconfig.json",
+    "compilerOptions": {
+        "noEmit": true,
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "lib": ["DOM", "ES2015"]
+    }
 }

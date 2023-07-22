@@ -3,7 +3,7 @@ import { GateConfig } from './@types/GateConfig.js'
 
 export const GATE_CONFIG = getGateConfig()
 
-export const APP_VERSION = Bun.env.APP_VERSION ?? 'undefined'
+export const APP_VERSION = process.env.APP_VERSION ?? 'undefined'
 
 /** The card is only valid for X minutes, then it will be destroyed by a cronjob. */
 export const CARD_VALIDITY_IN_MINUTES = 3

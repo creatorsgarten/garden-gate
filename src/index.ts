@@ -1,7 +1,9 @@
-import '@bogeychan/elysia-polyfills/node/index.js'
+import './elysia-polyfills'
 import { Elysia, t } from 'elysia'
 import Database from 'better-sqlite3'
 import fs from 'fs'
+import ObjectID from 'bson-objectid'
+import util from 'util'
 
 import {
     createTimedAccessCard,
@@ -10,11 +12,16 @@ import {
     getDoorStats,
     getLogs,
 } from './access.js'
-import { APP_VERSION, CARD_VALIDITY_IN_MINUTES, GATE_CONFIG } from './constants.js'
+import {
+    APP_VERSION,
+    CARD_VALIDITY_IN_MINUTES,
+    GATE_CONFIG,
+} from './constants.js'
 import { createCardNumber } from './createCardNumber.js'
 import { verifyRequestAuthenticity } from './verify.js'
 
 const { doors } = GATE_CONFIG
+const errorLog: { _id: string; time: string; message: string }[] = []
 
 if (!fs.existsSync('.data')) await fs.promises.mkdir('.data')
 const db = new Database('.data/gardengate.sqlite')
@@ -57,7 +64,7 @@ async function cleanup(log = false) {
     for (const { door, card } of activeCards) {
         const timedCard = db
             .prepare(`SELECT * FROM timed_access_cards WHERE card_no = $cardNo`)
-            .get({ $cardNo: card.cardNo }) as TimedAccessCard | null
+            .get({ cardNo: card.cardNo }) as TimedAccessCard | null
         if (!timedCard) {
             console.log(
                 `[cleanup] Unknown card "${card.cardNo}" found in door "${door.name}". Deleting.`,
@@ -72,7 +79,7 @@ async function cleanup(log = false) {
             await deleteTimedAccessCard(door, card.cardNo)
             db.prepare(
                 `DELETE FROM timed_access_cards WHERE card_no = $cardNo`,
-            ).run({ $cardNo: card.cardNo })
+            ).run({ cardNo: card.cardNo })
             continue
         }
         if (
@@ -102,6 +109,14 @@ await cleanup(true)
 const app = new Elysia()
     .onError(({ error }) => {
         console.error(error)
+        errorLog.push({
+            _id: new ObjectID().toHexString(),
+            time: new Date().toISOString(),
+            message: util.format(error),
+        })
+        if (errorLog.length > 1000) {
+            errorLog.splice(0, errorLog.length - 1000)
+        }
         if (error.cause) {
             console.error(error.cause)
             if ((error.cause as any).cause) {
@@ -125,9 +140,15 @@ const app = new Elysia()
             app
                 .post(
                     '/access/generate',
-                    async ({ body: { accessId, prefix, userId } }) => {
+                    async ({
+                        body: { accessId, prefix, userId, overrideTimeout },
+                    }) => {
                         const cardNo = createCardNumber(prefix)
-                        const timeoutIn = 1000 * 60 * CARD_VALIDITY_IN_MINUTES
+                        const timeoutIn =
+                            1000 *
+                            (overrideTimeout && GATE_CONFIG.allowTestToken
+                                ? overrideTimeout
+                                : 60 * CARD_VALIDITY_IN_MINUTES)
                         const createdAt = new Date()
                         const expiresAt = new Date(Date.now() + timeoutIn)
 
@@ -137,7 +158,7 @@ const app = new Elysia()
                             .prepare(
                                 `SELECT * FROM timed_access_cards WHERE user_id = $user_id`,
                             )
-                            .all({ $user_id: userId }) as TimedAccessCard[]
+                            .all({ user_id: userId }) as TimedAccessCard[]
 
                         if (userCards.length > 0) {
                             console.log(
@@ -153,7 +174,7 @@ const app = new Elysia()
                                         )
                                         db.prepare(
                                             `DELETE FROM timed_access_cards WHERE card_no = $cardNo`,
-                                        ).run({ $cardNo: card.card_no })
+                                        ).run({ cardNo: card.card_no })
                                     }),
                                 )
                             }
@@ -176,12 +197,12 @@ const app = new Elysia()
                             $createdAt,
                             $expiresAt
                         )`,
-                        ).all({
-                            $cardNo: cardNo,
-                            $accessId: accessId,
-                            $userId: userId,
-                            $createdAt: createdAt.toISOString(),
-                            $expiresAt: expiresAt.toISOString(),
+                        ).run({
+                            cardNo: cardNo,
+                            accessId: accessId,
+                            userId: userId,
+                            createdAt: createdAt.toISOString(),
+                            expiresAt: expiresAt.toISOString(),
                         })
 
                         await createTimedAccessCard(cardNo)
@@ -198,9 +219,17 @@ const app = new Elysia()
                             accessId: t.String(),
                             userId: t.String(),
                             prefix: t.String({ pattern: '^[a-zA-Z]{0,10}$' }),
+                            overrideTimeout: t.Optional(t.Number()),
                         }),
                     },
                 )
+                .post('/tester/cleanup', async () => {
+                    if (!GATE_CONFIG.allowTestToken) {
+                        throw new Error('Test mode not active -- not allowed.')
+                    }
+                    await cleanup()
+                    return { status: 'ok' }
+                })
                 .get(
                     '/access/log',
                     async ({ query }) => {
@@ -225,9 +254,17 @@ const app = new Elysia()
                             timeLimitSeconds: t.Optional(t.String()),
                         }),
                     },
-                ),
+                )
+                .get('/error-log', async () => {
+                    return errorLog
+                })
+                .post('/tester/simulate-error', async () => {
+                    throw new Error('Simulated error')
+                }),
     )
-    .listen(+Bun.env.PORT! || 3310)
+    .listen(+process.env.PORT! || 3310)
+
+export type App = typeof app
 
 console.log(
     `Garden gate [${APP_VERSION}] is running at ${app.server?.hostname}:${app.server?.port}`,
