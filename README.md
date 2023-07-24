@@ -102,3 +102,47 @@ In another terminal tab, run the tests:
 ```sh
 pnpm test
 ```
+
+## Production access
+
+To access the production server and maked authenticated calls, you need to be granted access to Garden Gate’s service account.
+
+<details><summary>How to grant access to the service account</summary>
+
+1. Go to [service account’s permissions page](https://console.cloud.google.com/iam-admin/serviceaccounts/details/107259846035962061387/permissions?project=creatorsgarten-wiki).
+2. Click **Grant Access**.
+3. Type in the Google account’s email address.
+4. Select the **Service Account Token Creator** role.
+5. Click **Save** and wait for a few minutes.
+
+</details>
+
+1. Using `gcloud`, get the service account’s ID token:
+
+    ```sh
+    gcloud auth print-identity-token \
+        --audiences=https://github.com/creatorsgarten/garden-gate \
+        --impersonate-service-account=garden-gate@creatorsgarten-wiki.iam.gserviceaccount.com \
+        --include-email \
+        --project=creatorsgarten-wiki
+    ```
+
+    The above common should output a long string. This is the ID token. The ID token can be used for 1 hour. After that, you need to generate a new one.
+
+2. Create a `.env` file and put in:
+
+    ```sh
+    ID_TOKEN=<id-token>
+    GARDEN_GATE_URL=https://<domain>
+    ```
+
+    You should have received the URL from the Garden Gate maintainer. Please make sure that there is no trailing slash in the URL.
+
+3. Use VS Code [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) invoke the API by clicking the **Send Request** link in the code blocks below.
+
+Get access log:
+
+```http
+GET {{$dotenv GARDEN_GATE_URL}}/access/log?timeLimitSeconds=3600
+Authorization: Bearer {{$dotenv ID_TOKEN}}
+```
