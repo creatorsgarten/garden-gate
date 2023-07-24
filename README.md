@@ -105,7 +105,7 @@ pnpm test
 
 ## Production access
 
-To access the production server and maked authenticated calls, you need to be granted access to Garden Gate’s service account.
+To access the production server and make authenticated calls, you need to be granted access to Garden Gate’s service account on Google Cloud.
 
 <details><summary>How to grant access to the service account</summary>
 
