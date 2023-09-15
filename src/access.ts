@@ -76,7 +76,7 @@ export async function deleteTimedAccessCard(door: Door, cardNo: string) {
     // Error need to be handle to unwrap null type from data (type guard)
     if (error) {
         throw new Error(
-            `Unable to delete card with the door "${door.name}" with error ${error.status} ${error.value}`,
+            `Unable to delete card with the door "${door.name}" with error ${error.status} ${JSON.stringify(error.value)}`,
             { cause: error },
         )
     }
